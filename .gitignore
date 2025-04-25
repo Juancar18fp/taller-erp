@@ -1,0 +1,37 @@
+### Maven ###
+target/
+pom.xml.versionsBackup
+pom.xml.releaseBackup
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/
+!.mvn/wrapper/maven-wrapper.jar
+
+
+### Test reports ###
+**/surefire-reports/
+**/failsafe-reports/
+**/test-results/
+
+
+### IntelliJ IDEA ###
+.idea/
+*.iws
+*.iml
+*.ipr
+*.swp
+*.class
+
+
+### VS Code ###
+.vscode/
+
+
+### Logs y archivos temporales ###
+*.log
+*.tmp
+
+
+### Archivos del sistema operativo ###
+.DS_Store
+Thumbs.db
