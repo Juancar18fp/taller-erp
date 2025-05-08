@@ -11,10 +11,10 @@ public class Cliente {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String razonSocial;
+    private String nombre;
     private String titular;
     @Column(unique = true)
-    private String nif;
+    private String documento;
     private String direccion;
     private String cp;
     private String poblacion;
