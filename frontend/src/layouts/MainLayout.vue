@@ -7,6 +7,7 @@
             <img
               src="../assets/logo.svg"
               style="width: 24px; height: 24px; object-fit: cover; border-radius: 4px"
+              alt="Logo"
             /><q-menu class="bg-white text-black"
               ><q-item clickable v-close-popup>
                 <q-item-section>Configuración</q-item-section>
