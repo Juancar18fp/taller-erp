@@ -57,7 +57,7 @@ public abstract class BaseController<T, S extends CrudService<T, Long>> {
                 .body(created);
     }
 
-    protected PageRequest buildPageRequest(int page, int size, String sortBy, String direction) {
+    protected PageRequest buildPageRequest( int page, int size, String sortBy, String direction) {
         PageRequest pageable = PageRequest.of(page - 1, size);
 
         if (sortBy != null && direction != null) {

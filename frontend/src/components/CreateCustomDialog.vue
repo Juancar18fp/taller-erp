@@ -46,9 +46,9 @@ type FormComponents = Record<RouteKey, Component>;
 
 const formComponents: FormComponents = {
   "/clientes": ClientesForm,
-  "/vehiculos": VehiculosForm, // Cambiar por componente correcto
-  "/articulos": ClientesForm, // Cambiar por componente correcto
-  "/ordenes": ClientesForm, // Cambiar por componente correcto
+  "/vehiculos": VehiculosForm,
+  "/articulos": ClientesForm,
+  "/ordenes": ClientesForm,
 } as const;
 
 const currentForm = computed(() => {
