@@ -8,11 +8,13 @@
       <q-card-section class="dialog-header">
         <div class="text-h4">{{ dialogTitle }}</div>
       </q-card-section>
-
       <q-card-section class="dialog-content q-pt-none">
         <component
           :is="currentForm"
+          :edit-data="editData"
+          :mode="editData?.id ? 'edit' : 'create'"
           @created="handleFormSubmit"
+          @updated="handleFormSubmit"
           @cancel="handleCancel"
           class="full-height"
         />
@@ -26,21 +28,17 @@ import { computed } from "vue";
 import ClientesForm from "./ClientesForm.vue";
 import type { Component } from "vue";
 import VehiculosForm from "./VehiculosForm.vue";
+import type { BaseEntity } from "../interfaces/index";
 
 type RouteKey = "/clientes" | "/vehiculos" | "/articulos" | "/ordenes";
 
-const emit = defineEmits(["update:modelValue", "created"]);
+const emit = defineEmits(["update:modelValue", "created", "updated"]);
 
-const props = defineProps({
-  modelValue: {
-    type: Boolean,
-    required: true,
-  },
-  route: {
-    type: String,
-    required: true,
-  },
-});
+const props = defineProps<{
+  modelValue: boolean;
+  route: string;
+  editData?: BaseEntity | undefined;
+}>();
 
 type FormComponents = Record<RouteKey, Component>;
 
@@ -57,23 +55,35 @@ const currentForm = computed(() => {
   return formComponents[routeKey] || ClientesForm;
 });
 
-type TitleMap = Record<RouteKey, string>;
+type TitleMap = Record<RouteKey, { create: string; edit: string }>;
 
 const dialogTitle = computed(() => {
   const titles: TitleMap = {
-    "/clientes": "Cliente",
-    "/vehiculos": "Vehículo",
-    "/articulos": "Artículo",
-    "/ordenes": "Orden",
+    "/clientes": { create: "Crear Cliente", edit: "Editar Cliente" },
+    "/vehiculos": { create: "Crear Vehículo", edit: "Editar Vehículo" },
+    "/articulos": { create: "Crear Artículo", edit: "Editar Artículo" },
+    "/ordenes": { create: "Crear Orden", edit: "Editar Orden" },
   } as const;
 
   const baseRoute = props.route.split("/")[1];
   const routeKey = `/${baseRoute}` as RouteKey;
-  return `Crear ${titles[routeKey] || "Entidad"}`;
+  const isEditing = !!props.editData?.id;
+
+  return titles[routeKey]
+    ? isEditing
+      ? titles[routeKey].edit
+      : titles[routeKey].create
+    : isEditing
+      ? "Editar Entidad"
+      : "Crear Entidad";
 });
 
 const handleFormSubmit = () => {
-  emit("created");
+  if (props.editData?.id) {
+    emit("updated");
+  } else {
+    emit("created");
+  }
   emit("update:modelValue", false);
 };
 

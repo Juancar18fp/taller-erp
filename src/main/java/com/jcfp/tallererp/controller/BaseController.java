@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Optional;
 
 public abstract class BaseController<T, S extends CrudService<T, Long>> {
 
@@ -55,6 +56,18 @@ public abstract class BaseController<T, S extends CrudService<T, Long>> {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(created);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<T> update(@PathVariable Long id, @RequestBody T dto) {
+        Optional<T> existingEntity = service.findById(id);
+
+        if (existingEntity.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        T updated = service.update(id, dto);
+        return ResponseEntity.ok(updated);
     }
 
     protected PageRequest buildPageRequest( int page, int size, String sortBy, String direction) {
