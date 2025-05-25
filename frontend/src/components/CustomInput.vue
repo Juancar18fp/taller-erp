@@ -18,23 +18,19 @@
 <script setup lang="ts">
 import { computed } from "vue";
 
-interface CustomInputProps {
-  modelValue: string;
-  obligatorio?: boolean;
+const props = defineProps<{
+  modelValue: string | null;
   label: string;
+  obligatorio?: boolean;
+  rules?: ((val: string | null) => boolean | string)[];
   hint?: string;
-  rules?: Array<(val: string) => boolean | string>;
-}
-
-const props = withDefaults(defineProps<CustomInputProps>(), {
-  hint: "",
-  obligatorio: false,
-});
+  readonly?: boolean;
+}>();
 
 const computedRules = computed(() => {
   const rules = [];
   if (props.obligatorio) {
-    rules.push((val: string) => !!val || "Campo obligatorio");
+    rules.push((val: string | null) => !!val || "Campo obligatorio");
   }
   return rules;
 });

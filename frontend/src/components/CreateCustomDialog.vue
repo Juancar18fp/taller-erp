@@ -28,7 +28,7 @@ import { computed } from "vue";
 import ClientesForm from "./ClientesForm.vue";
 import type { Component } from "vue";
 import VehiculosForm from "./VehiculosForm.vue";
-import type { BaseEntity } from "../interfaces/index";
+import type { BaseEntity } from "src/interfaces";
 
 type RouteKey = "/clientes" | "/vehiculos" | "/articulos" | "/ordenes";
 

@@ -17,8 +17,18 @@ tallerApi.interceptors.response.use(
       data: error.config?.data,
       status: error.response?.status,
       response: error.response?.data,
+      baseURL: error.config?.baseURL,
+      fullUrl: error.config?.baseURL + error.config?.url,
     });
-    return Promise.reject(new Error(error.response?.data?.message || error.message));
+
+    // Si es un error de red o el servidor no responde
+    if (!error.response) {
+      return Promise.reject(new Error("Error de conexión con el servidor"));
+    }
+
+    // Si es un error del servidor
+    const errorMessage = error.response.data?.message || error.message;
+    return Promise.reject(new Error(errorMessage));
   },
 );
 

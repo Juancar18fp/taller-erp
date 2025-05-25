@@ -6,6 +6,55 @@
 import type { QTableColumn } from "quasar";
 import type { Vehiculo } from "../interfaces/index";
 import CustomTable from "src/components/CustomTable.vue";
+import { ref, onMounted } from "vue";
+import tallerApi from "../api/tallerApi";
+
+interface Marca {
+  id: string;
+  nombre: string;
+}
+
+interface Modelo {
+  id: string;
+  nombre: string;
+}
+
+const marcas = ref<Record<string, string>>({});
+const modelos = ref<Record<string, string>>({});
+
+const cargarMarcas = async () => {
+  try {
+    const { data } = await tallerApi.get<Marca[]>("/marcas");
+    marcas.value = data.reduce(
+      (acc, marca) => {
+        acc[marca.id] = marca.nombre;
+        return acc;
+      },
+      {} as Record<string, string>,
+    );
+  } catch (error) {
+    console.error("Error cargando marcas:", error);
+  }
+};
+
+const cargarModelos = async () => {
+  try {
+    const { data } = await tallerApi.get<Modelo[]>("/modelos");
+    modelos.value = data.reduce(
+      (acc, modelo) => {
+        acc[modelo.id] = modelo.nombre;
+        return acc;
+      },
+      {} as Record<string, string>,
+    );
+  } catch (error) {
+    console.error("Error cargando modelos:", error);
+  }
+};
+
+onMounted(async () => {
+  await Promise.all([cargarMarcas(), cargarModelos()]);
+});
 
 const columns: QTableColumn[] = [
   {
@@ -26,21 +75,21 @@ const columns: QTableColumn[] = [
   {
     name: "marca",
     label: "Marca",
-    field: "marca",
+    field: (row) => marcas.value[row.marca] || row.marca,
     sortable: true,
     align: "left",
   },
   {
     name: "modelo",
     label: "Modelo",
-    field: "modelo",
+    field: (row) => modelos.value[row.modelo] || row.modelo,
     sortable: true,
     align: "left",
   },
   {
-    name: "cliente.id",
+    name: "cliente",
     label: "Cliente",
-    field: (row) => row.cliente.nombre,
+    field: (row) => row.cliente?.nombre || "Sin cliente",
     sortable: true,
     align: "left",
   },

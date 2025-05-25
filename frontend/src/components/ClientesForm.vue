@@ -4,95 +4,39 @@
       {{ isEditing ? "Editar Cliente" : "Nuevo Cliente" }}
     </div>
     <q-scroll-area class="col">
-      <q-form ref="formRef" @submit="onSubmit" class="q-gutter-y-md">
+      <q-form ref="formRef" @submit="handleFormSubmit" class="q-gutter-y-md">
         <div class="row q-col-gutter-lg">
           <div class="col-6">
-            <q-input
-              v-model="clientForm.nombre"
+            <CustomInput
+              v-model="clienteForm.nombre"
               label="Nombre *"
-              outlined
-              dense
-              lazy-rules
-              :rules="[(val) => !!val || 'Campo obligatorio']"
-              class="q-mb-md"
+              obligatorio
+              :rules="[(val: string | null) => !!val || 'Campo obligatorio']"
             />
-
-            <q-input v-model="clientForm.titular" label="Titular" outlined dense class="q-mb-md" />
-
-            <q-input
-              v-model="clientForm.documento"
+            <CustomInput v-model="clienteForm.titular" label="Titular" :rules="[]" />
+            <CustomInput
+              v-model="clienteForm.documento"
               label="DNI/NIE/CIF *"
-              outlined
-              dense
-              lazy-rules
+              obligatorio
               :rules="[
-                (val) => !!val || 'Documento obligatorio',
-                (val) => /^[XYZ]?\d{7,8}[A-Z]$/i.test(val) || 'Formato inválido',
+                (val: string | null) => !!val || 'Campo obligatorio',
+                (val: string | null) => !val || isValidDocument(val) || 'Formato inválido',
               ]"
-              class="q-mb-md"
-            />
-
-            <q-input
-              v-model="clientForm.email"
-              label="Email"
-              outlined
-              type="email"
-              dense
-              lazy-rules
-              :rules="[(val) => !val || /.+@.+\..+/.test(val) || 'Email inválido']"
-              class="q-mb-md"
-            />
-
-            <q-input
-              v-model="clientForm.telefono"
-              label="Teléfono"
-              outlined
-              dense
-              mask="##########"
-              class="q-mb-md"
             />
           </div>
 
           <div class="col-6">
-            <q-input
-              v-model="clientForm.direccion"
-              label="Dirección *"
-              outlined
-              dense
-              lazy-rules
-              :rules="[(val) => !!val || 'Dirección obligatoria']"
-              class="q-mb-md"
+            <CustomInput
+              v-model="clienteForm.telefono"
+              label="Teléfono"
+              :rules="[(val: string | null) => !val || isValidPhone(val) || 'Teléfono inválido']"
             />
-
-            <q-input
-              v-model="clientForm.cp"
-              label="Código Postal"
-              outlined
-              dense
-              mask="#####"
-              fill-mask
-              class="q-mb-md"
+            <CustomInput
+              v-model="clienteForm.email"
+              label="Email"
+              :rules="[(val: string | null) => !val || isValidEmail(val) || 'Email inválido']"
             />
-
-            <q-input
-              v-model="clientForm.poblacion"
-              label="Población *"
-              outlined
-              dense
-              lazy-rules
-              :rules="[(val) => !!val || 'Población obligatoria']"
-              class="q-mb-md"
-            />
-
-            <q-input
-              v-model="clientForm.provincia"
-              label="Provincia"
-              outlined
-              dense
-              class="q-mb-md"
-            />
-
-            <q-input v-model="clientForm.pais" label="País" outlined dense class="q-mb-md" />
+            <CustomInput v-model="clienteForm.direccion" label="Dirección" />
           </div>
         </div>
       </q-form>
@@ -103,7 +47,8 @@
       <q-btn
         :label="isEditing ? 'Actualizar' : 'Añadir'"
         color="primary"
-        @click="submitForm"
+        :loading="isLoading"
+        @click="handleFormSubmit"
         class="q-ml-sm"
       />
     </q-card-actions>
@@ -111,79 +56,111 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed } from "vue";
-import { useQuasar } from "quasar";
-import tallerApi from "../api/tallerApi";
-import type { QForm, QNotifyCreateOptions } from "quasar";
+import { ref, computed, watch } from "vue";
+import CustomInput from "./CustomInput.vue";
+import { useFormHandler } from "../composables/useFormHandler";
+import type { ClientePayload } from "../types/entities";
+import type { AxiosError } from "axios";
 
-const $q = useQuasar();
+interface ClienteEditData extends ClientePayload {
+  id: number;
+}
+
 const emit = defineEmits(["created", "updated", "cancel"]);
 
 const props = defineProps<{
-  editData?: (ClientPayload & { id: number }) | undefined;
+  editData?: ClienteEditData | undefined;
   mode?: "create" | "edit";
 }>();
 
-const formRef = ref<QForm>();
-
-interface ClientPayload {
-  nombre: string;
-  titular: string;
-  documento: string;
-  direccion: string;
-  cp: string;
-  poblacion: string;
-  provincia: string;
-  pais: string;
-  email: string;
-  telefono: string;
-}
-
-interface ApiError {
-  response?: {
-    data?: {
-      message?: string;
-      details?: string;
-    };
-    status?: number;
-  };
-  message?: string;
-  config?: {
-    url?: string;
-    method?: string;
-    data?: ClientPayload;
-  };
-}
-
-const clientForm = ref<ClientPayload>({
+const clienteForm = ref<ClientePayload>({
   nombre: "",
-  titular: "",
+  titular: null,
   documento: "",
-  direccion: "",
-  cp: "",
-  poblacion: "",
-  provincia: "",
-  pais: "",
-  email: "",
-  telefono: "",
+  telefono: null,
+  email: null,
+  direccion: null,
 });
 
 const isEditing = computed(() => props.mode === "edit" || !!props.editData?.id);
 
+const { formRef, isLoading, handleSubmit } = useFormHandler<ClientePayload>({
+  endpoint: "/clientes",
+  successMessage: isEditing.value
+    ? "Cliente actualizado exitosamente"
+    : "Cliente creado exitosamente",
+  errorMessage: isEditing.value ? "Error al actualizar cliente" : "Error al crear cliente",
+});
+
 const resetForm = () => {
-  clientForm.value = {
+  clienteForm.value = {
     nombre: "",
-    titular: "",
+    titular: null,
     documento: "",
-    direccion: "",
-    cp: "",
-    poblacion: "",
-    provincia: "",
-    pais: "",
-    email: "",
-    telefono: "",
+    telefono: null,
+    email: null,
+    direccion: null,
   };
   formRef.value?.resetValidation();
+};
+
+const isValidEmail = (email: string) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+
+const isValidDocument = (document: string) => {
+  // Validación para DNI/NIE/CIF
+  const dniRegex = /^[XYZ]?\d{7,8}[A-Z]$/i;
+  const cifRegex = /^[A-HJNPQRSUVW]\d{7}[0-9A-J]$/i;
+  return dniRegex.test(document) || cifRegex.test(document);
+};
+
+const isValidPhone = (phone: string) => {
+  const phoneRegex = /^[6-9]\d{8}$/;
+  return phoneRegex.test(phone);
+};
+
+const handleFormSubmit = async (evt: Event) => {
+  evt.preventDefault();
+
+  if (!formRef.value) {
+    console.error("Error: Referencia del formulario no encontrada");
+    return;
+  }
+
+  const success = await formRef.value.validate();
+  if (!success) {
+    console.error("Error: Validación del formulario fallida");
+    return;
+  }
+
+  const formData = {
+    ...clienteForm.value,
+    ...(isEditing.value && props.editData?.id ? { id: props.editData.id } : {}),
+    titular: clienteForm.value.titular || null,
+    telefono: clienteForm.value.telefono || null,
+    email: clienteForm.value.email || null,
+    direccion: clienteForm.value.direccion || null,
+  };
+
+  console.log("Enviando datos del cliente:", {
+    isEditing: isEditing.value,
+    id: props.editData?.id,
+    formData,
+  });
+
+  try {
+    await handleSubmit(formData, isEditing.value, props.editData?.id, () => {
+      if (!isEditing.value) {
+        resetForm();
+      }
+      emit(isEditing.value ? "updated" : "created");
+    });
+  } catch (error: unknown) {
+    const axiosError = error as AxiosError;
+    console.error("Error al enviar formulario:", axiosError.response?.data || axiosError);
+  }
 };
 
 watch(
@@ -195,17 +172,13 @@ watch(
       mode: props.mode,
     });
     if (newData) {
-      clientForm.value = {
+      clienteForm.value = {
         nombre: newData.nombre || "",
-        titular: newData.titular || "",
+        titular: newData.titular || null,
         documento: newData.documento || "",
-        direccion: newData.direccion || "",
-        cp: newData.cp || "",
-        poblacion: newData.poblacion || "",
-        provincia: newData.provincia || "",
-        pais: newData.pais || "",
-        email: newData.email || "",
-        telefono: newData.telefono || "",
+        telefono: newData.telefono || null,
+        email: newData.email || null,
+        direccion: newData.direccion || null,
       };
     } else {
       resetForm();
@@ -213,137 +186,6 @@ watch(
   },
   { immediate: true },
 );
-
-watch(
-  () => props.mode,
-  (newMode) => {
-    console.log("Modo cambiado:", {
-      newMode,
-      editData: props.editData,
-      hasId: !!props.editData?.id,
-    });
-  },
-  { immediate: true },
-);
-
-const onSubmit = async () => {
-  try {
-    const payload = { ...clientForm.value };
-
-    // Limpiar campos opcionales vacíos
-    (Object.keys(payload) as Array<keyof ClientPayload>).forEach((key) => {
-      if (!payload[key]) payload[key] = "";
-    });
-
-    console.log("Estado de edición:", {
-      isEditing: isEditing.value,
-      mode: props.mode,
-      editData: props.editData,
-      hasId: !!props.editData?.id,
-    });
-
-    if (isEditing.value && props.editData?.id) {
-      console.log("Actualizando cliente:", {
-        id: props.editData.id,
-        payload,
-        url: `/clientes/${props.editData.id}`,
-      });
-
-      // Asegurarnos de que el ID está en el payload
-      const updatePayload = {
-        ...payload,
-        id: props.editData.id,
-      };
-
-      const response = await tallerApi.put(`/clientes/${props.editData.id}`, updatePayload);
-      console.log("Respuesta de actualización:", response);
-
-      $q.notify({
-        type: "positive",
-        message: "Cliente actualizado exitosamente",
-        position: "top",
-      } as QNotifyCreateOptions);
-      emit("updated");
-    } else {
-      console.log("Creando nuevo cliente:", {
-        payload,
-        url: "/clientes",
-      });
-
-      const response = await tallerApi.post("/clientes", payload);
-      console.log("Respuesta de creación:", response);
-
-      $q.notify({
-        type: "positive",
-        message: "Cliente creado exitosamente",
-        position: "top",
-      } as QNotifyCreateOptions);
-      emit("created");
-      resetForm();
-    }
-  } catch (error: unknown) {
-    const apiError = error as ApiError;
-    console.error("Error completo:", error);
-    console.error("Error detallado:", {
-      response: apiError.response?.data,
-      message: apiError.message,
-      status: apiError.response?.status,
-      isEditing: isEditing.value,
-      mode: props.mode,
-      editData: props.editData,
-      url: apiError.config?.url,
-      method: apiError.config?.method,
-      data: apiError.config?.data,
-    });
-
-    const errorMessage =
-      apiError.response?.data?.message ||
-      (isEditing.value ? "Error al actualizar cliente" : "Error al crear cliente");
-
-    const notifyOptions: QNotifyCreateOptions = {
-      type: "negative",
-      message: errorMessage,
-      position: "top",
-    };
-
-    if (apiError.response?.data?.details) {
-      notifyOptions.caption = apiError.response.data.details;
-    }
-
-    $q.notify(notifyOptions);
-  }
-};
-
-const submitForm = async () => {
-  if (!formRef.value) {
-    $q.notify({
-      type: "negative",
-      message: "Error al validar el formulario",
-      position: "top",
-    } as QNotifyCreateOptions);
-    return;
-  }
-
-  try {
-    const success = await formRef.value.validate();
-    if (success) {
-      formRef.value.submit();
-    } else {
-      $q.notify({
-        type: "negative",
-        message: "Por favor completa los campos requeridos correctamente",
-        position: "top",
-      } as QNotifyCreateOptions);
-    }
-  } catch (error) {
-    console.error("Error al validar el formulario:", error);
-    $q.notify({
-      type: "negative",
-      message: "Error al validar el formulario",
-      position: "top",
-    } as QNotifyCreateOptions);
-  }
-};
 </script>
 
 <style scoped>
