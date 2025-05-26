@@ -196,7 +196,6 @@ watch(
 
       console.log("IDs extraídos:", { marcaId, modeloId });
 
-      // Primero cargar los modelos si hay una marca
       if (marcaId) {
         await cargarModelosPorMarca(marcaId.toString());
         marcaSeleccionada.value = marcaId.toString();
@@ -205,7 +204,6 @@ watch(
         }
       }
 
-      // Luego actualizar el formulario
       vehiculoForm.value = {
         matricula: newData.matricula || "",
         marca: { id: marcaId?.toString() || "" },
@@ -228,7 +226,6 @@ watch(
   { immediate: true },
 );
 
-// Añadir un watcher para el modo
 watch(
   () => props.mode,
   (newMode) => {

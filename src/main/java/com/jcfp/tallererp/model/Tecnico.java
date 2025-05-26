@@ -1,18 +1,19 @@
 package com.jcfp.tallererp.model;
-
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-@Entity(name = "articulos")
+@Entity(name = "tecnicos")
 @Getter
 @Setter
-public class Articulo{
+public class Tecnico {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String descripcion;
-    private double precio;
-    private int stock;
-    private String proveedor;
+
+    private String nombre;
+    private String especialidad;
+
 }
+

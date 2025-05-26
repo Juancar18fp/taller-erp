@@ -46,14 +46,11 @@ export interface VehiculoEditData extends Omit<VehiculoPayload, "marca" | "model
   modelo: string | { id: string | number };
 }
 
-// Interfaces para futuras entidades
 export interface ArticuloPayload {
-  codigo: string;
-  nombre: string;
-  descripcion?: string;
+  descripcion: string;
   precio: number;
   stock: number;
-  categoria?: string;
+  proveedor: string;
 }
 
 export interface OrdenTrabajoPayload {

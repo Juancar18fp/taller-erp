@@ -1,8 +1,5 @@
 <template>
   <div class="q-pa-md column full-height">
-    <div class="text-h6 q-mb-md">
-      {{ isEditing ? "Editar Cliente" : "Nuevo Cliente" }}
-    </div>
     <q-scroll-area class="col">
       <q-form ref="formRef" @submit="handleFormSubmit" class="q-gutter-y-md">
         <div class="row q-col-gutter-lg">
@@ -58,9 +55,8 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
 import CustomInput from "./CustomInput.vue";
-import { useFormHandler } from "../composables/useFormHandler";
+import { useEntityForm } from "../composables/useEntityForm";
 import type { ClientePayload } from "../types/entities";
-import type { AxiosError } from "axios";
 
 interface ClienteEditData extends ClientePayload {
   id: number;
@@ -84,12 +80,18 @@ const clienteForm = ref<ClientePayload>({
 
 const isEditing = computed(() => props.mode === "edit" || !!props.editData?.id);
 
-const { formRef, isLoading, handleSubmit } = useFormHandler<ClientePayload>({
+const { formRef, isLoading, submitForm } = useEntityForm<ClientePayload>({
   endpoint: "/clientes",
   successMessage: isEditing.value
     ? "Cliente actualizado exitosamente"
     : "Cliente creado exitosamente",
   errorMessage: isEditing.value ? "Error al actualizar cliente" : "Error al crear cliente",
+  onSuccess: () => {
+    if (!isEditing.value) {
+      resetForm();
+    }
+    emit(isEditing.value ? "updated" : "created");
+  },
 });
 
 const resetForm = () => {
@@ -138,39 +140,14 @@ const handleFormSubmit = async (evt: Event) => {
   const formData = {
     ...clienteForm.value,
     ...(isEditing.value && props.editData?.id ? { id: props.editData.id } : {}),
-    titular: clienteForm.value.titular || null,
-    telefono: clienteForm.value.telefono || null,
-    email: clienteForm.value.email || null,
-    direccion: clienteForm.value.direccion || null,
   };
 
-  console.log("Enviando datos del cliente:", {
-    isEditing: isEditing.value,
-    id: props.editData?.id,
-    formData,
-  });
-
-  try {
-    await handleSubmit(formData, isEditing.value, props.editData?.id, () => {
-      if (!isEditing.value) {
-        resetForm();
-      }
-      emit(isEditing.value ? "updated" : "created");
-    });
-  } catch (error: unknown) {
-    const axiosError = error as AxiosError;
-    console.error("Error al enviar formulario:", axiosError.response?.data || axiosError);
-  }
+  await submitForm(formData, props.editData?.id);
 };
 
 watch(
   () => props.editData,
   (newData) => {
-    console.log("editData cambiado:", {
-      newData,
-      hasId: !!newData?.id,
-      mode: props.mode,
-    });
     if (newData) {
       clienteForm.value = {
         nombre: newData.nombre || "",

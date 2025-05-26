@@ -29,6 +29,7 @@ import ClientesForm from "./ClientesForm.vue";
 import type { Component } from "vue";
 import VehiculosForm from "./VehiculosForm.vue";
 import type { BaseEntity } from "src/interfaces";
+import ArticulosForm from "./ArticulosForm.vue";
 
 type RouteKey = "/clientes" | "/vehiculos" | "/articulos" | "/ordenes";
 
@@ -45,7 +46,7 @@ type FormComponents = Record<RouteKey, Component>;
 const formComponents: FormComponents = {
   "/clientes": ClientesForm,
   "/vehiculos": VehiculosForm,
-  "/articulos": ClientesForm,
+  "/articulos": ArticulosForm,
   "/ordenes": ClientesForm,
 } as const;
 

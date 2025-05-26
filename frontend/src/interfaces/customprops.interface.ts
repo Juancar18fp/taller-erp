@@ -7,7 +7,7 @@ export interface CustomTableProps {
 }
 
 export interface CustomInputProps {
-  modelValue: string;
+  modelValue: string | null;
   label: string;
   hint?: string;
   obligatorio?: boolean;

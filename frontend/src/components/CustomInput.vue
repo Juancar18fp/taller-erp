@@ -4,7 +4,7 @@
     @update:model-value="(value) => $emit('update:modelValue', value)"
     :label="label"
     outlined
-    :hint="hint"
+    :hint="computedHint"
     dense
     lazy-rules
     :rules="computedRules"
@@ -33,6 +33,13 @@ const computedRules = computed(() => {
     rules.push((val: string | null) => !!val || "Campo obligatorio");
   }
   return rules;
+});
+
+const computedHint = computed(() => {
+  if (props.hint === undefined) {
+    return "";
+  }
+  return props.hint;
 });
 
 defineEmits(["update:modelValue"]);

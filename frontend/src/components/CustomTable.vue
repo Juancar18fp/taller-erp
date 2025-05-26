@@ -61,17 +61,24 @@ const createDialogVisible = ref(false);
 const selectedItem = ref<BaseEntity | undefined>(undefined);
 
 const buttonLabel = computed(() =>
-  customProps.route.toLowerCase().includes("clientes") ? "Nuevo Cliente" : "Nuevo Vehículo",
+  customProps.route.toLowerCase().includes("clientes")
+    ? "Nuevo Cliente"
+    : customProps.route.toLowerCase().includes("vehiculos")
+      ? "Nuevo Vehículo"
+      : customProps.route.toLowerCase().includes("articulos")
+        ? "Nuevo Artículo"
+        : customProps.route.toLowerCase().includes("ordenes")
+          ? "Nueva Orden de Trabajo"
+          : "Nuevo",
 );
 
 const showCreateDialog = () => {
-  selectedItem.value = undefined; // Limpiar datos de edición
+  selectedItem.value = undefined;
   createDialogVisible.value = true;
 };
 
 const showEditDialog = async (item: BaseEntity) => {
   try {
-    // Obtener datos completos del elemento desde el backend
     const { data } = await tallerApi.get(`${customProps.route}/${item.id}`);
     selectedItem.value = data;
     createDialogVisible.value = true;

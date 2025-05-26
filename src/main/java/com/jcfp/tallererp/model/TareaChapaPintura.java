@@ -4,15 +4,24 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-@Entity(name = "articulos")
+
+@Entity(name = "tareas_chapa_pintura")
 @Getter
 @Setter
-public class Articulo{
+public class TareaChapaPintura {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String descripcion;
-    private double precio;
-    private int stock;
-    private String proveedor;
+    private Double horas;
+    private Double costo;
+
+    @ManyToOne
+    private Tecnico tecnico;
+
+    @ManyToOne
+    private OrdenTrabajo ordenTrabajo;
+
 }

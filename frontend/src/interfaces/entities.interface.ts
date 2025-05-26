@@ -19,3 +19,18 @@ export interface Cliente extends BaseEntity {
 export interface Vehiculo extends BaseEntity {
   matricula: string;
 }
+
+export interface Articulo extends BaseEntity {
+  descripcion: string;
+  precio: number;
+  stock: number;
+  proveedor?: string;
+}
+
+export interface OrdenTrabajo extends BaseEntity {
+  vehiculo: Vehiculo;
+  cliente: Cliente;
+  fechaEntrada: Date;
+  fechaSalida: Date;
+  estado: string;
+}

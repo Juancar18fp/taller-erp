@@ -26,7 +26,7 @@ public abstract class BaseController<T, S extends CrudService<T, Long>> {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<T>> getAllClientes() {
+    public ResponseEntity<List<T>> getAll() {
         List<T> clientes = service.findAll();
         return ResponseEntity.ok(clientes);
     }
