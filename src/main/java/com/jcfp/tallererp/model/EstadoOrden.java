@@ -1,8 +1,9 @@
 package com.jcfp.tallererp.model;
 
 public enum EstadoOrden {
-    CREADA,
+    PENDIENTE,
     EN_PROCESO,
+    PUASADA,
     FINALIZADA,
     ENTREGADA,
     CANCELADA

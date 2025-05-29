@@ -11,9 +11,11 @@ public class Tecnico {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    @Column()
     private String nombre;
-    private String especialidad;
+    @ManyToOne
+    @JoinColumn(name = "rol_id")
+    private Rol rol;
 
 }
 

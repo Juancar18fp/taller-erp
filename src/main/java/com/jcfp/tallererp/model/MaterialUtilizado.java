@@ -17,7 +17,4 @@ public class MaterialUtilizado {
 
     @ManyToOne
     private Articulo articulo;
-
-    @ManyToOne
-    private OrdenTrabajo ordenTrabajo;
 }

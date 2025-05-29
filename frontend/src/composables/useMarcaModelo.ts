@@ -40,15 +40,12 @@ export function useMarcaModelo() {
 
   const cargarModelosPorMarca = async (marcaId: string) => {
     try {
-      console.log("Cargando modelos para marca:", marcaId);
       const { data } = await tallerApi.get<Modelo[]>(`/modelos/${marcaId}`);
-      console.log("Modelos recibidos:", data);
       modelos.value = data.map((m) => ({
         id: m.id.toString(),
         nombre: m.nombre,
         marca_id: marcaId,
       }));
-      console.log("Modelos procesados:", modelos.value);
     } catch (error) {
       console.error("Error cargando modelos:", error);
       $q.notify({

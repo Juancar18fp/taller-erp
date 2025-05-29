@@ -77,7 +77,6 @@
                 <artifactId>frontend-maven-plugin</artifactId>
                 <version>1.15.1</version>
                 <executions>
-                    <!-- Instala Node.js y npm -->
                     <execution>
                         <id>install-node-npm</id>
                         <goals>
@@ -92,7 +91,6 @@
                         </configuration>
                     </execution>
 
-                    <!-- Instala dependencias de Vue -->
                     <execution>
                         <id>npm-install</id>
                         <goals>
@@ -104,7 +102,6 @@
                         </configuration>
                     </execution>
 
-                    <!-- Compila Vue y copia los archivos a /static -->
                     <execution>
                         <id>npm-build</id>
                         <goals>

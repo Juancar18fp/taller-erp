@@ -4,17 +4,13 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-
-@Entity(name = "tareas_chapa_pintura")
+@Entity(name = "roles")
 @Getter
 @Setter
-public class TareaChapaPintura {
-
+public class Rol {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    private String descripcion;
-    private Double horas;
-    private Double costo;
+    @Column(unique = true)
+    private String rol;
 }

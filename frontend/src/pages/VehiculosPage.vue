@@ -4,7 +4,7 @@
 
 <script setup lang="ts">
 import type { QTableColumn } from "quasar";
-import type { Vehiculo } from "../interfaces/index";
+import type { Vehiculo } from "src/interfaces";
 import CustomTable from "src/components/CustomTable.vue";
 import { ref, onMounted } from "vue";
 import tallerApi from "../api/tallerApi";
@@ -75,14 +75,14 @@ const columns: QTableColumn[] = [
   {
     name: "marca",
     label: "Marca",
-    field: (row) => marcas.value[row.marca] || row.marca,
+    field: (row) => row.marca?.nombre || "Sin marca",
     sortable: true,
     align: "left",
   },
   {
     name: "modelo",
     label: "Modelo",
-    field: (row) => modelos.value[row.modelo] || row.modelo,
+    field: (row) => row.modelo?.nombre || "Sin modelo",
     sortable: true,
     align: "left",
   },

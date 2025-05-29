@@ -21,10 +21,12 @@ public class OrdenTrabajo{
     private LocalDateTime fechaFinalizacion;
     private LocalDateTime fechaEntrega;
 
-    @OneToMany(mappedBy = "ordenTrabajo", cascade = CascadeType.ALL)
+    @OneToMany
+    @JoinColumn(name = "tareas_id")
     private List<TareaChapaPintura> tareas;
 
-    @OneToMany(mappedBy = "ordenTrabajo", cascade = CascadeType.ALL)
+    @OneToMany
+    @JoinColumn(name = "materiales_id")
     private List<MaterialUtilizado> materiales;
 
     @Column(columnDefinition = "TEXT")

@@ -5,10 +5,22 @@ import com.jcfp.tallererp.repository.ClienteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class ClienteServiceImpl extends BaseServiceImpl<Cliente, Long, ClienteRepository> implements ClienteService {
+    private final ClienteRepository clienteRepository;
     @Autowired
     public ClienteServiceImpl(ClienteRepository clienteRepository) {
         super(clienteRepository);
+        this.clienteRepository = clienteRepository;
+    }
+
+    @Override
+    public List<Cliente> findByName(String name) {
+        if (name == null || name.isEmpty()) {
+            return findAll();
+        }
+        return clienteRepository.findByNombreContainingIgnoreCase(name);
     }
 }

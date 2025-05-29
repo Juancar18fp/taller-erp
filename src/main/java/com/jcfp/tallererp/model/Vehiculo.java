@@ -11,10 +11,14 @@ public class Vehiculo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String matricula;
-    private String marca;
-    private String modelo;
+    @ManyToOne
+    @JoinColumn(name = "marca_id", nullable = false)
+    private Marca marca;
+    @ManyToOne
+    @JoinColumn(name = "modelo_id", nullable = false)
+    private Modelo modelo;
     private int matriculacion;
     @ManyToOne
     @JoinColumn(name = "cliente_id", nullable = false)

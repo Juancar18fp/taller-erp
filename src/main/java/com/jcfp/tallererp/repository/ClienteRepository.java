@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface ClienteRepository extends BaseRepository<Cliente, Long> {
     @Query("""
@@ -19,4 +21,5 @@ public interface ClienteRepository extends BaseRepository<Cliente, Long> {
          OR LOWER(c.telefono)   LIKE LOWER(CONCAT('%', :filter, '%'))
     """)
     Page<Cliente> findByFilter(@Param("filter") String filter, Pageable pageable);
+    List<Cliente> findByNombreContainingIgnoreCase(@Param("filter") String filter);
     }
