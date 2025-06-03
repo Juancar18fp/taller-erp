@@ -2,6 +2,7 @@ package com.jcfp.tallererp.service;
 
 import com.jcfp.tallererp.model.OrdenTrabajo;
 import com.jcfp.tallererp.repository.OrdenTrabajoRepository;
+import com.jcfp.tallererp.util.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

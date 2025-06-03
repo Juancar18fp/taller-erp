@@ -25,6 +25,12 @@ export interface Marca {
   nombre: string;
 }
 
+export interface Modelo {
+  id: string;
+  nombre: string;
+  marca_id: string;
+}
+
 export interface Vehiculo extends VehiculoPayload {
   id?: number;
 }

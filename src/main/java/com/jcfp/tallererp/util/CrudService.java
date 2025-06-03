@@ -1,4 +1,4 @@
-package com.jcfp.tallererp.service;
+package com.jcfp.tallererp.util;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

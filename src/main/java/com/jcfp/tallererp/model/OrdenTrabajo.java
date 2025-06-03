@@ -1,5 +1,6 @@
 package com.jcfp.tallererp.model;
 
+import com.jcfp.tallererp.util.EstadoOrden;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,36 +15,5 @@ public class OrdenTrabajo{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String nombre;
-    private EstadoOrden estado;
 
-    private LocalDateTime fechaCreacion;
-    private LocalDateTime fechaInicioTrabajo;
-    private LocalDateTime fechaFinalizacion;
-    private LocalDateTime fechaEntrega;
-
-    @OneToMany
-    @JoinColumn(name = "tareas_id")
-    private List<TareaChapaPintura> tareas;
-
-    @OneToMany
-    @JoinColumn(name = "materiales_id")
-    private List<MaterialUtilizado> materiales;
-
-    @Column(columnDefinition = "TEXT")
-    private String observaciones;
-
-    private boolean pagado;
-    private String metodoPago;
-    private LocalDateTime fechaPago;
-
-    @ManyToOne
-    @JoinColumn(name = "tecnico_id")
-    private Tecnico tecnicoPrincipal;
-
-    @ManyToOne
-    @JoinColumn(name = "vehiculo_id", nullable = false)
-    private Vehiculo vehiculo;
-    @ManyToOne
-    @JoinColumn(name = "cliente_id", nullable = false)
-    private Cliente cliente;
 }

@@ -42,13 +42,10 @@
             </q-tabs>
           </div>
 
-          <!-- Acciones del Usuario -->
           <div class="col-auto flex items-center q-gutter-sm">
-            <!-- Menú de Usuario -->
             <q-btn flat round class="q-ml-sm">
               <q-avatar size="32px" color="white" text-color="primary">
-                <img v-if="userAvatar" :src="userAvatar" alt="Usuario" />
-                <span v-else>{{ userInitials }}</span>
+                <span>{{ userInitials }}</span>
               </q-avatar>
 
               <q-menu class="bg-white text-dark shadow-lg" style="min-width: 200px">
@@ -84,8 +81,6 @@
     <q-page-container>
       <router-view />
     </q-page-container>
-
-    <!-- Dialog de Búsqueda Global -->
   </q-layout>
 </template>
 
@@ -100,7 +95,6 @@ const activeTab = ref("inicio");
 
 const userName = ref("Juan Pérez");
 const userRole = ref("Administrador");
-const userAvatar = ref("");
 const userInitials = computed(() => {
   return userName.value
     .split(" ")
@@ -128,6 +122,16 @@ const navigationItems = [
     route: "ordenes",
     name: "Órdenes de trabajo",
     icon: "build",
+  },
+  {
+    route: "empleados",
+    name: "Empleados",
+    icon: "badge",
+  },
+  {
+    route: "configuracion",
+    name: "Configuración",
+    icon: "settings",
   },
 ];
 

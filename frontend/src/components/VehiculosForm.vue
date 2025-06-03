@@ -1,3 +1,11 @@
+export interface EmpleadoPayload { nombre: string; fechaNacimiento: string | null;
+documentoIdentidad: string; nacionalidad: string | null; estadoCivil: { id: string; nombre?: string;
+}; direccion: string; telefono: string; email: string; numeroSeguridadSocial: string; rol: { id:
+string; nombre?: string; }; contrato: { puesto: { id: string; nombre?: string; }; fechaContratacion:
+string | null; tipoContrato: { id: string; nombre?: string; }; jornadaLaboral: { id: string;
+nombre?: string; }; salario: string | null; numeroCuenta: string | null; }; } export interface
+Empleado extends EmpleadoPayload { id: number; } export interface EmpleadoEditData extends
+EmpleadoPayload { id: number;
 <template>
   <div class="dialog-form-container">
     <q-scroll-area class="form-scroll-area">
@@ -165,8 +173,6 @@ const vehiculoForm = ref<VehiculoPayload>({
   },
 });
 
-const marcaId = ref("");
-const modeloId = ref("");
 const clienteSeleccionado = ref<Cliente | null>(null);
 
 const clientesOptions = ref<Cliente[]>([]);
@@ -205,10 +211,11 @@ const handleSubmit = async () => {
 
   try {
     const payload = {
+      id: props.editData?.id || undefined,
       matricula: vehiculoForm.value.matricula,
       matriculacion: vehiculoForm.value.matriculacion,
-      marca: { id: marcaId.value },
-      modelo: { id: modeloId.value },
+      marca: { id: marcaSeleccionada.value },
+      modelo: { id: modeloSeleccionado.value },
       cliente: {
         id: clienteSeleccionado.value?.id?.toString() || "",
         nombre: clienteSeleccionado.value?.nombre || "",

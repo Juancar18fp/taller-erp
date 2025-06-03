@@ -2,10 +2,10 @@ package com.jcfp.tallererp.controller;
 
 import com.jcfp.tallererp.model.Cliente;
 import com.jcfp.tallererp.service.ClienteService;
+import com.jcfp.tallererp.util.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController

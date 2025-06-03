@@ -42,13 +42,18 @@ import { computed } from "vue";
 import ClientesForm from "./ClientesForm.vue";
 import type { Component } from "vue";
 import VehiculosForm from "./VehiculosForm.vue";
-import type { BaseEntity } from "src/interfaces";
 import ArticulosForm from "./ArticulosForm.vue";
-import OrdenForm from "./OrdenesForm.vue";
+import OrdenForm from "./OrdenForm.vue";
+import EmpleadosForm from "./EmpleadosForm.vue";
 
-type RouteKey = "/clientes" | "/vehiculos" | "/articulos" | "/ordenes";
+type RouteKey = "/clientes" | "/vehiculos" | "/articulos" | "/ordenes" | "/empleados";
 
 const emit = defineEmits(["update:modelValue", "created", "updated"]);
+
+interface BaseEntity {
+  id: number;
+  [key: string]: unknown;
+}
 
 const props = defineProps<{
   modelValue: boolean;
@@ -63,6 +68,7 @@ const formComponents: FormComponents = {
   "/vehiculos": VehiculosForm,
   "/articulos": ArticulosForm,
   "/ordenes": OrdenForm,
+  "/empleados": EmpleadosForm,
 } as const;
 
 const currentForm = computed(() => {
@@ -79,6 +85,7 @@ const dialogTitle = computed(() => {
     "/vehiculos": { create: "Nuevo Vehículo", edit: "Editar Vehículo" },
     "/articulos": { create: "Nuevo Artículo", edit: "Editar Artículo" },
     "/ordenes": { create: "Nueva Orden", edit: "Editar Orden" },
+    "/empleados": { create: "Nuevo Empleado", edit: "Editar Empleado" },
   } as const;
 
   const baseRoute = props.route.split("/")[1];
@@ -109,6 +116,9 @@ const getSubtitle = () => {
       ? "Modifica la información del artículo"
       : "Añade un nuevo artículo al inventario",
     ordenes: isEditing ? "Actualiza los detalles de la orden" : "Crea una nueva orden de trabajo",
+    empleados: isEditing
+      ? "Modifica la información del empleado seleccionado"
+      : "Completa los datos para registrar un nuevo empleado",
   };
 
   return (
@@ -126,6 +136,7 @@ const getHeaderIcon = () => {
     vehiculos: isEditing ? "directions_car" : "add_road",
     articulos: isEditing ? "inventory" : "add_box",
     ordenes: isEditing ? "edit_note" : "note_add",
+    empleados: isEditing ? "edit" : "person_add",
   };
 
   return icons[baseRoute as keyof typeof icons] || (isEditing ? "edit" : "add");

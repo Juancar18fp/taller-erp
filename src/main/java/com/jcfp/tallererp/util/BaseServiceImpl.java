@@ -1,6 +1,5 @@
-package com.jcfp.tallererp.service;
+package com.jcfp.tallererp.util;
 
-import com.jcfp.tallererp.repository.BaseRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

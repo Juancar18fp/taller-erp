@@ -1,4 +1,4 @@
-// app global css in SCSS form
+// App global CSS in SCSS form
 .dialog-form-container {
   height: 100%;
   display: flex;
@@ -21,16 +21,36 @@
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto 1fr;
   gap: 1.5rem;
   height: 100%;
+  grid-template-areas:
+    "personal contact"
+    "contracts contracts";
+}
+
+// Assign grid areas to each section
+.form-section:nth-child(1) {
+  grid-area: personal;
+}
+
+.form-section:nth-child(2) {
+  grid-area: contact;
+}
+
+.contracts-section {
+  grid-area: contracts;
 }
 
 @media (max-width: 900px) {
   .form-grid {
     grid-template-columns: 1fr;
+    grid-template-areas:
+      "personal"
+      "contact"
+      "contracts";
     gap: 1rem;
   }
-
   .form-content {
     padding: 1rem;
   }
@@ -80,6 +100,88 @@
   flex-direction: column;
   gap: 1.25rem;
   flex: 1;
+}
+
+// Contracts specific styles
+.contracts-section {
+  min-height: 400px;
+}
+
+.contracts-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-height: 500px;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+.contract-card {
+  background: rgba(248, 250, 252, 0.8);
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.contract-card:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
+}
+
+.contract-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.6);
+  cursor: pointer;
+}
+
+.contract-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.contract-icon {
+  font-size: 1rem;
+  color: #6366f1;
+}
+
+.contract-actions {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.contract-content {
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.contract-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.contract-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.no-contracts {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 2rem;
+  min-height: 200px;
+  text-align: center;
 }
 
 .form-actions {
@@ -135,6 +237,10 @@
   animation-delay: 0.1s;
 }
 
+.contracts-section {
+  animation-delay: 0.2s;
+}
+
 @keyframes slideInUp {
   from {
     opacity: 0;
@@ -170,29 +276,40 @@
     flex-direction: column;
     gap: 1rem;
   }
-
   .input-small,
   .input-large {
     flex: 1;
   }
+
+  .contract-header {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: stretch;
+  }
+
+  .contract-title {
+    justify-content: center;
+  }
+
+  .contract-actions {
+    justify-content: center;
+  }
 }
+
 @media (max-width: 600px) {
   .form-actions {
     padding: 0.75rem 1rem;
     flex-direction: column-reverse;
     gap: 0.5rem;
   }
-
   .cancel-btn,
   .submit-btn {
     width: 100%;
     justify-content: center;
   }
-
   .section-header {
     margin-bottom: 1rem;
   }
-
   .inputs-container {
     gap: 1rem;
   }
@@ -200,4 +317,22 @@
 
 .fixed-width-select {
   width: 250px;
+}
+
+.contracts-container::-webkit-scrollbar {
+  width: 4px;
+}
+
+.contracts-container::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 2px;
+}
+
+.contracts-container::-webkit-scrollbar-thumb {
+  background: rgba(59, 130, 246, 0.3);
+  border-radius: 2px;
+}
+
+.contracts-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(59, 130, 246, 0.5);
 }

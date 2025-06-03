@@ -2,17 +2,7 @@ import { ref } from "vue";
 import { useQuasar } from "quasar";
 import type { QNotifyCreateOptions } from "quasar";
 import tallerApi from "../api/tallerApi";
-
-interface Marca {
-  id: string;
-  nombre: string;
-}
-
-interface Modelo {
-  id: string;
-  nombre: string;
-  marca_id: string;
-}
+import type { Marca, Modelo } from "../types/entities/vehiculo";
 
 export function useMarcaModelo() {
   const $q = useQuasar();

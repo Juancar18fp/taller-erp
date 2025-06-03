@@ -2,6 +2,7 @@ package com.jcfp.tallererp.service;
 
 import com.jcfp.tallererp.model.Articulo;
 import com.jcfp.tallererp.repository.ArticuloRepository;
+import com.jcfp.tallererp.util.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

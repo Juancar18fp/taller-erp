@@ -1,6 +1,5 @@
-export interface ClientePayload {
+export interface Persona {
   nombre: string;
-  titular: string | null;
   documento: string;
   direccion: string | null;
   cp: string | null;
@@ -9,6 +8,10 @@ export interface ClientePayload {
   pais: string | null;
   email: string | null;
   telefono: string | null;
+}
+
+export interface ClientePayload extends Persona {
+  titular: string | null;
 }
 
 export interface ClienteEditData extends ClientePayload {

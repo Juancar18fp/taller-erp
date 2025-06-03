@@ -46,10 +46,25 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from "vue";
 import { QTable, useQuasar } from "quasar";
-import type { QTableProps } from "quasar";
-import type { ApiResponse, BaseEntity, CustomTableProps } from "src/interfaces";
+import type { QTableProps, QTableColumn } from "quasar";
 import tallerApi from "../api/tallerApi";
-import CreateCustomDialog from "./CreateCustomDialog.vue";
+import CreateCustomDialog from "./CustomDialog.vue";
+
+interface BaseEntity {
+  id: number;
+  [key: string]: unknown;
+}
+
+interface CustomTableProps {
+  columns: QTableColumn[];
+  title: string;
+  route: string;
+}
+
+interface ApiResponse<T = BaseEntity> {
+  items: T[];
+  total: number;
+}
 
 const customProps = defineProps<CustomTableProps>();
 const $q = useQuasar();
@@ -117,7 +132,6 @@ const onRequest = async (props: Parameters<NonNullable<QTableProps["onRequest"]>
     };
 
     const { data } = await tallerApi.get<ApiResponse>(customProps.route, { params });
-    console.log("Datos recibidos del backend:", data.items);
     rows.value = data.items;
     pagination.value = {
       ...props.pagination,

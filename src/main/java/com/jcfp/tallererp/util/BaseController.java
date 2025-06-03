@@ -1,7 +1,6 @@
-package com.jcfp.tallererp.controller;
+package com.jcfp.tallererp.util;
 
 import com.jcfp.tallererp.dto.PaginatedResponse;
-import com.jcfp.tallererp.service.CrudService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;

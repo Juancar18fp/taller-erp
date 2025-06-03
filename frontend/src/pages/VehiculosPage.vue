@@ -4,7 +4,7 @@
 
 <script setup lang="ts">
 import type { QTableColumn } from "quasar";
-import type { Vehiculo } from "src/interfaces";
+import type { Vehiculo } from "../types/entities/vehiculo";
 import CustomTable from "src/components/CustomTable.vue";
 import { ref, onMounted } from "vue";
 import tallerApi from "../api/tallerApi";
