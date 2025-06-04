@@ -17,11 +17,11 @@ public class VehiculoServiceImpl extends BaseServiceImpl<Vehiculo, Long, Vehicul
         super(vehiculoRepository);
         this.vehiculoRepository = vehiculoRepository;
     }
+
     @Override
-    public List<Vehiculo> findByName(String name) {
-        if (name == null || name.isEmpty()) {
+    public List<Vehiculo> findByFilterParam(String filter) {
+        if (filter == null || filter.isEmpty()) {
             return findAll();
         }
-        return vehiculoRepository.findByMatriculaContainingIgnoreCase(name);
-    }
+        return vehiculoRepository.findByMatriculaContainingIgnoreCase(filter);    }
 }

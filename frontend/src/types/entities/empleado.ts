@@ -14,6 +14,7 @@ export interface EmpleadoPayload extends Persona {
   };
   contratos: Contrato[];
 }
+
 export interface Contrato {
   id?: string;
   puesto: { id: string };

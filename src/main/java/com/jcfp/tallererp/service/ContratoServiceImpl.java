@@ -25,4 +25,9 @@ public class ContratoServiceImpl extends BaseServiceImpl<Contrato, Long, Contrat
                 .map(c -> new PuestoEmpleadoDTO(c.getEmpleado().getId(), c.getPuesto().getNombre()))
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<Contrato> findByFilterParam(String filter) {
+        return List.of();
+    }
 }

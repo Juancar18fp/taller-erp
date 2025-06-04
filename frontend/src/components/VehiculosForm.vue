@@ -1,11 +1,3 @@
-export interface EmpleadoPayload { nombre: string; fechaNacimiento: string | null;
-documentoIdentidad: string; nacionalidad: string | null; estadoCivil: { id: string; nombre?: string;
-}; direccion: string; telefono: string; email: string; numeroSeguridadSocial: string; rol: { id:
-string; nombre?: string; }; contrato: { puesto: { id: string; nombre?: string; }; fechaContratacion:
-string | null; tipoContrato: { id: string; nombre?: string; }; jornadaLaboral: { id: string;
-nombre?: string; }; salario: string | null; numeroCuenta: string | null; }; } export interface
-Empleado extends EmpleadoPayload { id: number; } export interface EmpleadoEditData extends
-EmpleadoPayload { id: number;
 <template>
   <div class="dialog-form-container">
     <q-scroll-area class="form-scroll-area">
@@ -34,37 +26,70 @@ EmpleadoPayload { id: number;
                 />
               </div>
 
-              <div class="input-row">
-                <q-select
-                  class="input-large"
-                  v-model="marcaSeleccionada"
-                  :options="marcas"
-                  option-label="nombre"
-                  option-value="id"
-                  label="Marca *"
-                  :rules="[required]"
-                  map-options
-                  emit-value
-                  outlined
-                  dense
-                  @update:model-value="cambiarMarca"
-                />
+              <q-select
+                v-model="marcaSeleccionada"
+                :options="marcas"
+                option-value="id"
+                option-label="nombre"
+                use-input
+                map-options
+                emit-value
+                input-debounce="300"
+                :placeholder="!marcaSeleccionada ? 'Buscar marca...' : ''"
+                outlined
+                dense
+                clearable
+                :rules="[required]"
+                class="input-large"
+                @filter="filtrarMarcas"
+              >
+                <template v-slot:no-option>
+                  <q-item>
+                    <q-item-section class="text-grey"> No se encontraron marcas </q-item-section>
+                  </q-item>
+                </template>
 
-                <q-select
-                  class="input-large"
-                  v-model="modeloSeleccionado"
-                  :options="modelos"
-                  option-label="nombre"
-                  option-value="id"
-                  label="Modelo *"
-                  :rules="[required]"
-                  :disable="!marcaSeleccionada"
-                  map-options
-                  emit-value
-                  outlined
-                  dense
-                />
-              </div>
+                <template v-slot:option="scope">
+                  <q-item v-bind="scope.itemProps">
+                    <q-item-section>
+                      <q-item-label>{{ scope.opt.nombre }}</q-item-label>
+                    </q-item-section>
+                  </q-item>
+                </template>
+              </q-select>
+
+              <q-select
+                v-model="modeloSeleccionado"
+                :options="modelos"
+                option-value="id"
+                option-label="nombre"
+                :disable="!marcaSeleccionada"
+                use-input
+                map-options
+                emit-value
+                input-debounce="300"
+                :placeholder="!modeloSeleccionado ? 'Buscar modelo...' : ''"
+                outlined
+                dense
+                clearable
+                :rules="[required]"
+                class="input-large"
+                @filter="filtrarModelo"
+              >
+                <template v-slot:no-option>
+                  <q-item>
+                    <q-item-section class="text-grey"> No se encontraron modelos </q-item-section>
+                  </q-item>
+                </template>
+
+                <template v-slot:option="scope">
+                  <q-item v-bind="scope.itemProps">
+                    <q-item-section>
+                      <q-item-label>{{ scope.opt.nombre }}</q-item-label>
+                    </q-item-section>
+                  </q-item>
+                </template>
+              </q-select>
             </div>
           </div>
 
@@ -100,7 +125,7 @@ EmpleadoPayload { id: number;
                   <q-item v-bind="scope.itemProps">
                     <q-item-section>
                       <q-item-label>{{ scope.opt.nombre }}</q-item-label>
-                      <q-item-label caption>{{ scope.opt.email || "Sin email" }}</q-item-label>
+                      <q-item-label caption>{{ scope.opt.documento }}</q-item-label>
                     </q-item-section>
                   </q-item>
                 </template>
@@ -134,26 +159,15 @@ EmpleadoPayload { id: number;
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from "vue";
+import { ref, watch } from "vue";
 import { useQuasar } from "quasar";
 import CustomInput from "./CustomInput.vue";
 import tallerApi from "src/api/tallerApi";
-import type { VehiculoEditData, VehiculoPayload } from "../types/entities/vehiculo";
+import type { Marca, Modelo, VehiculoEditData, VehiculoPayload } from "../types/entities/vehiculo";
 import type { Cliente } from "src/types/entities/cliente";
-import { useMarcaModelo } from "src/composables/useMarcaModelo";
 
 const $q = useQuasar();
 const emit = defineEmits(["created", "updated", "cancel"]);
-
-const {
-  marcas,
-  modelos,
-  marcaSeleccionada,
-  modeloSeleccionado,
-  cargarMarcas,
-  cargarModelosPorMarca,
-  cambiarMarca,
-} = useMarcaModelo();
 
 const props = defineProps<{
   editData?: VehiculoEditData;
@@ -172,12 +186,11 @@ const vehiculoForm = ref<VehiculoPayload>({
     nombre: "",
   },
 });
+const required = (val: string | null) => !!val || "Campo obligatorio";
 
 const clienteSeleccionado = ref<Cliente | null>(null);
 
 const clientesOptions = ref<Cliente[]>([]);
-
-const required = (val: string | null) => !!val || "Campo obligatorio";
 
 const filtrarClientes = async (val: string, update: (fn: () => void) => void) => {
   if (val.length < 2) {
@@ -199,6 +212,55 @@ const filtrarClientes = async (val: string, update: (fn: () => void) => void) =>
     console.error("Error buscando clientes:", error);
     update(() => {
       clientesOptions.value = [];
+    });
+  }
+};
+
+const marcaSeleccionada = ref<Marca | null>(null);
+
+const marcas = ref<Marca[]>([]);
+
+const filtrarMarcas = async (val: string, update: (fn: () => void) => void) => {
+  if (val.length < 2) {
+    update(() => {
+      marcas.value = [];
+    });
+    return;
+  }
+
+  try {
+    const { data } = await tallerApi.get<Marca[]>("/marcas", {
+      params: { search: val },
+    });
+
+    update(() => {
+      marcas.value = Array.isArray(data) ? data : [];
+    });
+  } catch (error) {
+    console.error("Error buscando marcas:", error);
+    update(() => {
+      marcas.value = [];
+    });
+  }
+};
+
+const modeloSeleccionado = ref<Modelo | null>(null);
+
+const modelos = ref<Modelo[]>([]);
+
+const filtrarModelo = async (val: string, update: (fn: () => void) => void) => {
+  try {
+    const { data } = await tallerApi.get<Modelo[]>("/modelos", {
+      params: { marca: marcaSeleccionada.value?.id, modelo: val },
+    });
+
+    update(() => {
+      modelos.value = Array.isArray(data) ? data : [];
+    });
+  } catch (error) {
+    console.error("Error buscando modelos:", error);
+    update(() => {
+      modelos.value = [];
     });
   }
 };
@@ -252,6 +314,15 @@ const resetForm = () => {
   };
   formRef.value?.resetValidation();
 };
+watch(marcaSeleccionada, (newMarca, oldMarca) => {
+  if (!newMarca && oldMarca) {
+    modeloSeleccionado.value = null;
+    modelos.value = [];
+  } else if (newMarca && oldMarca && newMarca !== oldMarca) {
+    modeloSeleccionado.value = null;
+    modelos.value = [];
+  }
+});
 
 watch(
   () => props.editData,
@@ -268,17 +339,6 @@ watch(
         },
       };
 
-      const marcaId = typeof data.marca === "object" ? data.marca.id : data.marca;
-
-      if (marcaId) {
-        await cargarModelosPorMarca(marcaId.toString());
-        marcaSeleccionada.value = marcaId.toString();
-        const modeloId = typeof data.modelo === "object" ? data.modelo.id : data.modelo;
-        if (modeloId) {
-          modeloSeleccionado.value = modeloId.toString();
-        }
-      }
-
       if (data.cliente?.id) {
         try {
           const { data: clienteData } = await tallerApi.get<Cliente>(
@@ -289,14 +349,23 @@ watch(
           console.error("Error cargando cliente:", error);
         }
       }
+
+      if (data.marca?.id) {
+        const { data: marca } = await tallerApi.get<Marca>(`/marcas/${data.marca.id}`);
+        marcaSeleccionada.value = marca;
+      } else {
+        marcaSeleccionada.value = null;
+      }
+      if (data.modelo?.id) {
+        const { data: modelo } = await tallerApi.get<Modelo>(`/modelos/${data.modelo.id}`);
+        modeloSeleccionado.value = modelo;
+      } else {
+        modeloSeleccionado.value = null;
+      }
     } else {
       resetForm();
     }
   },
   { immediate: true },
 );
-
-onMounted(async () => {
-  await cargarMarcas();
-});
 </script>

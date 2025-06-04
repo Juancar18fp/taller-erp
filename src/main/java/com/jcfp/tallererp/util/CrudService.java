@@ -13,4 +13,6 @@ public interface CrudService<T,ID> {
     T create(T entity);
     T update(ID id, T entity);
     void delete(ID id);
+    List<T> findByFilterParam(String filter);
+
 }

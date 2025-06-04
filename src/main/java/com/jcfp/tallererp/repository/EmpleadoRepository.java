@@ -21,4 +21,6 @@ public interface EmpleadoRepository extends BaseRepository<Empleado, Long> {
          OR LOWER(e.telefono)   LIKE LOWER(CONCAT('%', :filter, '%'))
     """)
     Page<Empleado> findByFilter(@Param("filter") String filter, Pageable pageable);
+    List<Empleado> findByNombreContainingIgnoreCase(String nombre);
+
 }

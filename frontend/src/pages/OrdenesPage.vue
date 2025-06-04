@@ -1,51 +1,27 @@
 <template>
-  <CustomTable :columns="columns" title="Clientes" route="/clientes" />
+  <CustomTable :columns="columns" title="Ordenes" route="/ordenes" />
 </template>
 
 <script setup lang="ts">
 import type { QTableColumn } from "quasar";
-import type { Cliente } from "../types/entities/cliente";
+import type { OrdenTrabajo } from "../types/entities/orden_trabajo";
 import CustomTable from "src/components/CustomTable.vue";
 
 const columns: QTableColumn[] = [
   {
     name: "id",
     label: "Código",
-    field: (row) => (row as Cliente).id,
+    field: (row) => (row as OrdenTrabajo).id,
     sortable: true,
     required: true,
     align: "left",
   },
   {
-    name: "nombre",
-    label: "Nombre",
-    field: "nombre",
+    name: "codigoOrden",
+    label: "Código de Orden",
+    field: (row) => (row as OrdenTrabajo).codigoOrden,
     sortable: true,
-    align: "left",
-  },
-  {
-    name: "documento",
-    label: "DNI o NIF",
-    field: "documento",
-    align: "left",
-  },
-  {
-    name: "poblacion",
-    label: "Población",
-    field: "poblacion",
-    sortable: true,
-    align: "left",
-  },
-  {
-    name: "email",
-    label: "Email",
-    field: "email",
-    align: "left",
-  },
-  {
-    name: "telefono",
-    label: "Teléfono",
-    field: "telefono",
+    required: true,
     align: "left",
   },
 ];

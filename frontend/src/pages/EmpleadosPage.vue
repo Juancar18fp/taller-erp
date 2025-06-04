@@ -43,7 +43,6 @@ const columns: QTableColumn[] = [
     name: "puesto.name",
     label: "Puesto",
     field: (row) => {
-      console.log("Fila:", row);
       return puestosActuales.value[row.id] || "Contrato no activo";
     },
     sortable: true,

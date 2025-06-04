@@ -24,7 +24,7 @@ const modelos = ref<Record<string, string>>({});
 
 const cargarMarcas = async () => {
   try {
-    const { data } = await tallerApi.get<Marca[]>("/marcas");
+    const { data } = await tallerApi.get<Marca[]>("/marcas/all");
     marcas.value = data.reduce(
       (acc, marca) => {
         acc[marca.id] = marca.nombre;
@@ -39,7 +39,7 @@ const cargarMarcas = async () => {
 
 const cargarModelos = async () => {
   try {
-    const { data } = await tallerApi.get<Modelo[]>("/modelos");
+    const { data } = await tallerApi.get<Modelo[]>("/modelos/all");
     modelos.value = data.reduce(
       (acc, modelo) => {
         acc[modelo.id] = modelo.nombre;

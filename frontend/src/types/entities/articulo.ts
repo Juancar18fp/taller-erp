@@ -6,9 +6,9 @@ export interface ArticuloPayload {
 }
 
 export interface ArticuloEditData extends ArticuloPayload {
-  id?: number;
+  id?: string;
 }
 
 export interface Articulo extends ArticuloPayload {
-  id?: number;
+  id?: string;
 }

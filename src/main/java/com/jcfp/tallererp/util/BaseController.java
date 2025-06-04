@@ -7,6 +7,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -17,6 +18,7 @@ public abstract class BaseController<T, S extends CrudService<T, Long>> {
     public BaseController(S service) {
         this.service = service;
     }
+
     @GetMapping("/{id}")
     public ResponseEntity<T> getById(@PathVariable Long id) {
         return service.findById(id)
@@ -69,7 +71,27 @@ public abstract class BaseController<T, S extends CrudService<T, Long>> {
         return ResponseEntity.ok(updated);
     }
 
-    protected PageRequest buildPageRequest( int page, int size, String sortBy, String direction) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        Optional<T> existingEntity = service.findById(id);
+
+        if (existingEntity.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        service.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping(params = "search")
+    public ResponseEntity<List<T>> searchByParamFilter(@RequestParam(required = false) String search) {
+        if (search != null) {
+            return ResponseEntity.ok(service.findByFilterParam(search));
+        }
+        return ResponseEntity.ok(service.findAll());
+    }
+
+    protected PageRequest buildPageRequest(int page, int size, String sortBy, String direction) {
         PageRequest pageable = PageRequest.of(page - 1, size);
 
         if (sortBy != null && direction != null) {

@@ -2,49 +2,21 @@ package com.jcfp.tallererp.service;
 
 import com.jcfp.tallererp.model.TipoContrato;
 import com.jcfp.tallererp.repository.TipoContratoRepository;
+import com.jcfp.tallererp.util.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import java.util.List;
-import java.util.Optional;
 
 @Service
-public class TipoContratoServiceImpl implements TipoContratoService{
-    private final TipoContratoRepository repository;
+public class TipoContratoServiceImpl extends BaseServiceImpl<TipoContrato, Long, TipoContratoRepository> implements TipoContratoService{
 
     @Autowired
     public TipoContratoServiceImpl(TipoContratoRepository repository) {
-        this.repository = repository;
+        super(repository);
     }
 
     @Override
-    public Page<TipoContrato> findAllFiltered(String filter, Pageable pageable) {
-        return null;
-    }
-
-    @Override
-    public List<TipoContrato> findAll() {
-        return repository.findAll();
-    }
-
-    @Override
-    public Optional<TipoContrato> findById(Long aLong) {
-        return Optional.empty();
-    }
-
-    @Override
-    public TipoContrato create(TipoContrato entity) {
-        return null;
-    }
-
-    @Override
-    public TipoContrato update(Long aLong, TipoContrato entity) {
-        return null;
-    }
-
-    @Override
-    public void delete(Long aLong) {
-
+    public List<TipoContrato> findByFilterParam(String filter) {
+        return List.of();
     }
 }

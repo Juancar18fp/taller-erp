@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface ArticuloRepository extends BaseRepository<Articulo, Long> {
     @Query("""
@@ -17,4 +19,5 @@ public interface ArticuloRepository extends BaseRepository<Articulo, Long> {
                  OR LOWER(a.proveedor   )      LIKE LOWER(CONCAT('%', :filter, '%'))
             """)
     Page<Articulo> findByFilter(@Param("filter") String filter, Pageable pageable);
+    List<Articulo> findByDescripcionContainingIgnoreCase(@Param("descripcion") String descripcion);
 }

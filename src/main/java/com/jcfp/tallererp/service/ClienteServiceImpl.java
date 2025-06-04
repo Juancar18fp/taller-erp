@@ -18,10 +18,10 @@ public class ClienteServiceImpl extends BaseServiceImpl<Cliente, Long, ClienteRe
     }
 
     @Override
-    public List<Cliente> findByName(String name) {
-        if (name == null || name.isEmpty()) {
+    public List<Cliente> findByFilterParam(String filter) {
+        if (filter == null || filter.isEmpty()) {
             return findAll();
         }
-        return clienteRepository.findByNombreContainingIgnoreCase(name);
+        return clienteRepository.findByNombreContainingIgnoreCase(filter);
     }
 }

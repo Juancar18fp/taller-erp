@@ -420,18 +420,14 @@ const agregarContrato = () => {
   form.value.contratos.push(nuevoContrato);
 };
 
-const eliminarContrato = (index: number) => {
+const eliminarContrato = async (index: number) => {
   const contratoEliminado = form.value.contratos[index];
-  const eraActivo = contratoEliminado?.activo || false;
+  if (contratoEliminado && contratoEliminado.id) {
+    await tallerApi.delete(`/contratos/${contratoEliminado.id}`);
+    $q.notify({ type: "negative", message: "Contrato eliminado correctamente" });
+  }
 
   form.value.contratos.splice(index, 1);
-
-  if (eraActivo && form.value.contratos.length > 0) {
-    const primerContrato = form.value.contratos[0];
-    if (primerContrato) {
-      primerContrato.activo = true;
-    }
-  }
 };
 
 const setContratoActivo = (index: number) => {
@@ -500,20 +496,8 @@ const handleSubmit = async () => {
   }
 };
 
-interface ContratoCreatePayload {
-  puesto: { id: string };
-  fechaContratacion: string;
-  tipoContrato: { id: string };
-  jornadaLaboral: { id: string };
-  salario: number;
-  numeroCuenta: string;
-  fechaFinalizacion: string;
-  activo: boolean;
-  empleado: { id: string };
-}
-
-interface ContratoUpdatePayload {
-  id: string;
+interface ContratoPayLoad {
+  id?: string;
   puesto: { id: string };
   fechaContratacion: string;
   tipoContrato: { id: string };
@@ -529,7 +513,7 @@ const guardarContratosDelEmpleado = async (empleadoId: string) => {
   try {
     for (const contrato of form.value.contratos) {
       if (contrato.id && props.editData?.id) {
-        const contratoPayload: ContratoUpdatePayload = {
+        const contratoPayload: ContratoPayLoad = {
           id: contrato.id,
           puesto: { id: contrato.puesto.id },
           fechaContratacion: contrato.fechaContratacion || "",
@@ -543,7 +527,7 @@ const guardarContratosDelEmpleado = async (empleadoId: string) => {
         };
         await tallerApi.put(`/contratos/${contrato.id}`, contratoPayload);
       } else {
-        const contratoPayload: ContratoCreatePayload = {
+        const contratoPayload: ContratoPayLoad = {
           puesto: { id: contrato.puesto.id },
           fechaContratacion: contrato.fechaContratacion || "",
           tipoContrato: { id: contrato.tipoContrato.id },
