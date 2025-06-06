@@ -1,6 +1,6 @@
 package com.jcfp.tallererp.service;
 
-import com.jcfp.tallererp.model.Vehiculo;
+import com.jcfp.tallererp.entity.Vehiculo;
 import com.jcfp.tallererp.repository.VehiculoRepository;
 import com.jcfp.tallererp.util.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;

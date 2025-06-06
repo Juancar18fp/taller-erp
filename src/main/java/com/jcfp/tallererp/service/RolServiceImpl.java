@@ -1,6 +1,6 @@
 package com.jcfp.tallererp.service;
 
-import com.jcfp.tallererp.model.Rol;
+import com.jcfp.tallererp.entity.Rol;
 import com.jcfp.tallererp.repository.RolRepository;
 import com.jcfp.tallererp.util.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;

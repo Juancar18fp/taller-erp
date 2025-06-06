@@ -9,8 +9,8 @@ export interface EstadoOrden {
 export interface OrdenTrabajo {
   id: string;
   codigoOrden: string;
-  empleadoAsignado: Empleado | { id: string };
-  vehiculo: Vehiculo | { id: string };
+  empleadoAsignado: Empleado | { id: string; nombre: string };
+  vehiculo: Vehiculo | { id: string; matricula: string };
   articulosUsados: ArticuloUsado[];
   estadoOrden: EstadoOrden;
   fechaOrden: string;
@@ -53,6 +53,7 @@ export interface ArticuloUsado {
     id: string;
     descripcion: string;
     precio: number;
+    stock?: number;
   };
   cantidad: number;
   ordenTrabajo?: {

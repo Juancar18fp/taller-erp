@@ -1,4 +1,4 @@
-package com.jcfp.tallererp.model;
+package com.jcfp.tallererp.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

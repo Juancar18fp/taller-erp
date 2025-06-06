@@ -1,4 +1,4 @@
-package com.jcfp.tallererp.model;
+package com.jcfp.tallererp.entity;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
@@ -14,29 +14,21 @@ public class OrdenTrabajo{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String codigoOrden;
-
     @ManyToOne
     private Empleado empleadoAsignado;
-
     @ManyToOne
     private Vehiculo vehiculo;
-
     @OneToMany(mappedBy = "ordenTrabajo", cascade = CascadeType.PERSIST)
     @JsonManagedReference
     private List<ArticuloUsado> articulosUsados;
-
     @ManyToOne
     private EstadoOrden estadoOrden;
-
     private LocalDate fechaOrden;
     private LocalDate fechaInicio;
     private LocalDate fechaFinalizacion;
     private LocalDate fechaPago;
     private boolean pagada;
     private String observaciones;
-
     private double total;
-
 }

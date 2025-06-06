@@ -1,6 +1,6 @@
 package com.jcfp.tallererp.service;
 
-import com.jcfp.tallererp.model.Modelo;
+import com.jcfp.tallererp.entity.Modelo;
 import com.jcfp.tallererp.util.CrudService;
 
 import java.util.List;

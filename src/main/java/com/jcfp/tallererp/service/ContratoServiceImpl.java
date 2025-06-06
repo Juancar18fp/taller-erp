@@ -1,7 +1,7 @@
 package com.jcfp.tallererp.service;
 
 import com.jcfp.tallererp.dto.PuestoEmpleadoDTO;
-import com.jcfp.tallererp.model.Contrato;
+import com.jcfp.tallererp.entity.Contrato;
 import com.jcfp.tallererp.repository.ContratoRepository;
 import com.jcfp.tallererp.util.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;

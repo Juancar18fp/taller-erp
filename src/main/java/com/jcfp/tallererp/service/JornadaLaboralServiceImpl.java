@@ -1,6 +1,6 @@
 package com.jcfp.tallererp.service;
 
-import com.jcfp.tallererp.model.JornadaLaboral;
+import com.jcfp.tallererp.entity.JornadaLaboral;
 import com.jcfp.tallererp.repository.JornadaLaboralRepository;
 import com.jcfp.tallererp.util.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,6 +1,6 @@
 package com.jcfp.tallererp.controller;
 
-import com.jcfp.tallererp.model.Rol;
+import com.jcfp.tallererp.entity.Rol;
 import com.jcfp.tallererp.service.RolService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

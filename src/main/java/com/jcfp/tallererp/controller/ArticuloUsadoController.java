@@ -2,7 +2,7 @@ package com.jcfp.tallererp.controller;
 
 import com.jcfp.tallererp.dto.ArticuloUsadoDTO;
 import com.jcfp.tallererp.dto.ArticuloUsadoMapper;
-import com.jcfp.tallererp.model.ArticuloUsado;
+import com.jcfp.tallererp.entity.ArticuloUsado;
 import com.jcfp.tallererp.service.ArticuloUsadoService;
 import com.jcfp.tallererp.util.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;

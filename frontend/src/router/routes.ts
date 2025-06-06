@@ -1,39 +1,59 @@
 import type { RouteRecordRaw } from "vue-router";
+import { authGuard } from "./guards";
 
 const routes: RouteRecordRaw[] = [
   {
+    path: "/login",
+    name: "LoginPage",
+    component: () => import("pages/LoginPage.vue"),
+    meta: { requiresAuth: false },
+  },
+  {
+    path: "/unauthorized",
+    name: "UnauthorizedPage",
+    component: () => import("pages/UnauthorizedPage.vue"),
+    meta: { requiresAuth: false },
+  },
+
+  {
     path: "/",
-    name: "inicio",
-    component: () => import("../layouts/MainLayout.vue"),
+    component: () => import("layouts/MainLayout.vue"),
+    meta: { requiresAuth: true },
+    beforeEnter: authGuard,
     children: [
-      { path: "/clientes", name: "clientes", component: () => import("../pages/ClientesPage.vue") },
       {
-        path: "/vehiculos",
-        name: "vehiculos",
-        component: () => import("../pages/VehiculosPage.vue"),
-      },
-      {
-        path: "/articulos",
-        name: "articulos",
-        component: () => import("../pages/ArticulosPage.vue"),
-      },
-      {
-        path: "/ordenes",
+        path: "ordenes",
         name: "ordenes",
-        component: () => import("../pages/OrdenesPage.vue"),
+        component: () => import("pages/OrdenesPage.vue"),
       },
       {
-        path: "/empleados",
+        path: "clientes",
+        name: "clientes",
+        component: () => import("pages/ClientesPage.vue"),
+      },
+      {
+        path: "vehiculos",
+        name: "vehiculos",
+        component: () => import("pages/VehiculosPage.vue"),
+      },
+      {
+        path: "articulos",
+        name: "articulos",
+        component: () => import("pages/ArticulosPage.vue"),
+      },
+      {
+        path: "empleados",
         name: "empleados",
-        component: () => import("../pages/EmpleadosPage.vue"),
+        component: () => import("pages/EmpleadosPage.vue"),
       },
       {
-        path: "/configuracion",
+        path: "configuracion",
         name: "configuracion",
-        component: () => import("../pages/ConfiguracionPage.vue"),
+        component: () => import("pages/ConfiguracionPage.vue"),
       },
     ],
   },
+
   {
     path: "/:catchAll(.*)*",
     component: () => import("pages/ErrorNotFound.vue"),

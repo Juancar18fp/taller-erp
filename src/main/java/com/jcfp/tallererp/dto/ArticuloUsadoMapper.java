@@ -1,7 +1,6 @@
 package com.jcfp.tallererp.dto;
 
-import com.jcfp.tallererp.model.Articulo;
-import com.jcfp.tallererp.model.ArticuloUsado;
+import com.jcfp.tallererp.entity.ArticuloUsado;
 
 public class ArticuloUsadoMapper {
 

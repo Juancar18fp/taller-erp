@@ -1,6 +1,6 @@
 package com.jcfp.tallererp.service;
 
-import com.jcfp.tallererp.model.EstadoOrden;
+import com.jcfp.tallererp.entity.EstadoOrden;
 import com.jcfp.tallererp.repository.EstadoOrdenRepository;
 import com.jcfp.tallererp.util.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;

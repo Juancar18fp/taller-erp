@@ -1,16 +1,16 @@
-package com.jcfp.tallererp.model;
+package com.jcfp.tallererp.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-@Entity(name = "roles")
+@Entity(name = "marcas")
 @Getter
 @Setter
-public class Rol {
+public class Marca {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false, unique = true)
     private String nombre;
 }

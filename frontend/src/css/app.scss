@@ -29,7 +29,6 @@
     "contracts contracts";
 }
 
-// Assign grid areas to each section
 .form-section:nth-child(1) {
   grid-area: personal;
 }
@@ -102,7 +101,6 @@
   flex: 1;
 }
 
-// Contracts specific styles
 .contracts-section {
   min-height: 400px;
 }

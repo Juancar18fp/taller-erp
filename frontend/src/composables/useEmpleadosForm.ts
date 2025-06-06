@@ -6,22 +6,21 @@ import type {
   EstadoCivil,
   JornadaLaboral,
   Puesto,
-  Rol,
   TipoContrato,
 } from "src/types/entities/empleado";
+
 export function useEmpleadosForm() {
   const $q = useQuasar();
+
   const estadosCiviles = ref<EstadoCivil[]>([]);
   const jornadasLaborales = ref<JornadaLaboral[]>([]);
   const tiposContrato = ref<TipoContrato[]>([]);
   const puestos = ref<Puesto[]>([]);
-  const roles = ref<Rol[]>([]);
 
   const estadoCivilSeleccionado = ref<string>("");
   const jornadaLaboralSeleccionada = ref<string>("");
   const tipoContratoSeleccionado = ref<string>("");
   const puestoSeleccionado = ref<string>("");
-  const rolSeleccionado = ref<string>("");
 
   const cargarEstadoCivil = async () => {
     try {
@@ -39,6 +38,7 @@ export function useEmpleadosForm() {
       } as QNotifyCreateOptions);
     }
   };
+
   const cargarJornadasLaborales = async () => {
     try {
       const { data } = await tallerApi.get<JornadaLaboral[]>("/jornadas-laborales");
@@ -55,6 +55,7 @@ export function useEmpleadosForm() {
       } as QNotifyCreateOptions);
     }
   };
+
   const cargarTiposContrato = async () => {
     try {
       const { data } = await tallerApi.get<TipoContrato[]>("/tipos-contrato");
@@ -71,31 +72,20 @@ export function useEmpleadosForm() {
       } as QNotifyCreateOptions);
     }
   };
+
   const cargarPuestos = async () => {
     try {
       const { data } = await tallerApi.get<Puesto[]>("/puestos");
       puestos.value = data.map((m) => ({
         id: m.id.toString(),
         nombre: m.nombre,
+        rol: {
+          id: m.rol.id.toString(),
+          nombre: m.rol.nombre,
+        },
       }));
     } catch (error) {
       console.error("Error cargando puestos:", error);
-      $q.notify({
-        type: "negative",
-        message: "Error cargando puestos",
-        position: "top",
-      } as QNotifyCreateOptions);
-    }
-  };
-  const cargarRoles = async () => {
-    try {
-      const { data } = await tallerApi.get<Rol[]>("/roles");
-      roles.value = data.map((m) => ({
-        id: m.id.toString(),
-        nombre: m.nombre,
-      }));
-    } catch (error) {
-      console.error("Error cargando roles:", error);
       $q.notify({
         type: "negative",
         message: "Error cargando puestos",
@@ -109,16 +99,13 @@ export function useEmpleadosForm() {
     jornadaLaboralSeleccionada,
     tipoContratoSeleccionado,
     puestoSeleccionado,
-    rolSeleccionado,
     estadosCiviles,
     jornadasLaborales,
     tiposContrato,
     puestos,
-    roles,
     cargarEstadoCivil,
     cargarJornadasLaborales,
     cargarTiposContrato,
     cargarPuestos,
-    cargarRoles,
   };
 }

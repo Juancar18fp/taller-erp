@@ -70,15 +70,8 @@ interface ApiResponse<T = BaseEntity> {
 const customProps = defineProps<CustomTableProps>();
 const $q = useQuasar();
 const tableRef = ref<QTable>();
-// Asegurar que rows siempre sea un array y reactivo
 const rows = ref<BaseEntity[]>([]);
 
-// Verificación adicional para debugging
-console.log("Initial rows state:", {
-  rowsValue: rows.value,
-  rowsType: typeof rows.value,
-  isArray: Array.isArray(rows.value),
-});
 const filter = ref("");
 const loading = ref(false);
 const createDialogVisible = ref(false);
@@ -121,7 +114,6 @@ const showEditDialog = async (item: BaseEntity) => {
 };
 
 const refreshTable = () => {
-  // Usar nextTick para asegurar que el DOM se actualice
   void nextTick(() => {
     tableRef.value?.requestServerInteraction();
   });
@@ -151,16 +143,6 @@ const onRequest = async (props: Parameters<NonNullable<QTableProps["onRequest"]>
 
     const { data } = await tallerApi.get<ApiResponse>(customProps.route, { params });
 
-    // Debug: Verificar la estructura de la respuesta
-    console.log("API Response structure:", {
-      data: data,
-      hasItems: data && "items" in data,
-      itemsType: typeof data?.items,
-      isArray: Array.isArray(data?.items),
-      itemsLength: data?.items?.length,
-    });
-
-    // Validar que data exista y tenga items como array
     if (data && Array.isArray(data.items)) {
       rows.value = data.items;
       pagination.value = {
@@ -183,7 +165,6 @@ const onRequest = async (props: Parameters<NonNullable<QTableProps["onRequest"]>
     }
   } catch (error) {
     console.error("Error loading data:", error);
-    // Asegurar que rows siempre sea un array en caso de error
     rows.value = [];
     pagination.value = {
       ...pagination.value,
@@ -205,17 +186,7 @@ const onRowClick = (_evt: Event, row: BaseEntity) => {
 };
 
 onMounted(async () => {
-  // Verificar el estado antes de la primera carga
-  console.log("OnMounted - rows state:", {
-    rowsValue: rows.value,
-    isArray: Array.isArray(rows.value),
-    length: rows.value?.length,
-  });
-
-  // Esperar al siguiente tick para asegurar que el componente esté completamente montado
   await nextTick();
-
-  // Verificar que tableRef esté disponible
   if (tableRef.value) {
     tableRef.value.requestServerInteraction();
   } else {

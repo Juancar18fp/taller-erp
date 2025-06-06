@@ -250,8 +250,24 @@ const modelos = ref<Modelo[]>([]);
 
 const filtrarModelo = async (val: string, update: (fn: () => void) => void) => {
   try {
-    const { data } = await tallerApi.get<Modelo[]>("/modelos", {
-      params: { marca: marcaSeleccionada.value?.id, modelo: val },
+    const params: Record<string, string | number> = {};
+
+    if (marcaSeleccionada.value) {
+      if (typeof marcaSeleccionada.value === "object" && "id" in marcaSeleccionada.value) {
+        params.marca = marcaSeleccionada.value.id;
+      } else {
+        params.marca = marcaSeleccionada.value;
+      }
+    }
+
+    if (val && val.trim()) {
+      params.modelo = val.trim();
+    }
+
+    console.log("Parámetros enviados:", params); // Para verificar
+
+    const { data } = await tallerApi.get<Modelo[]>("/modelos/buscar", {
+      params,
     });
 
     update(() => {
@@ -339,6 +355,7 @@ watch(
         },
       };
 
+      // 1. Cargar cliente
       if (data.cliente?.id) {
         try {
           const { data: clienteData } = await tallerApi.get<Cliente>(
@@ -350,17 +367,37 @@ watch(
         }
       }
 
+      // 2. Cargar marca
       if (data.marca?.id) {
-        const { data: marca } = await tallerApi.get<Marca>(`/marcas/${data.marca.id}`);
-        marcaSeleccionada.value = marca;
+        try {
+          const { data: marca } = await tallerApi.get<Marca>(`/marcas/${data.marca.id}`);
+          marcaSeleccionada.value = marca;
+        } catch (error) {
+          console.error("Error cargando marca:", error);
+        }
       } else {
         marcaSeleccionada.value = null;
       }
-      if (data.modelo?.id) {
-        const { data: modelo } = await tallerApi.get<Modelo>(`/modelos/${data.modelo.id}`);
-        modeloSeleccionado.value = modelo;
+
+      // 3. Cargar modelos DESPUÉS de tener la marca
+      if (data.modelo?.id && data.marca?.id) {
+        try {
+          // Primero cargar la lista de modelos para esa marca
+          const { data: modelosData } = await tallerApi.get<Modelo[]>("/modelos/buscar", {
+            params: { marca: data.marca.id },
+          });
+          modelos.value = Array.isArray(modelosData) ? modelosData : [];
+
+          // Luego cargar el modelo específico
+          const { data: modelo } = await tallerApi.get<Modelo>(`/modelos/${data.modelo.id}`);
+          modeloSeleccionado.value = modelo;
+        } catch (error) {
+          console.error("Error cargando modelo:", error);
+          modeloSeleccionado.value = null;
+        }
       } else {
         modeloSeleccionado.value = null;
+        modelos.value = [];
       }
     } else {
       resetForm();

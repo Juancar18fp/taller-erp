@@ -1,6 +1,6 @@
 package com.jcfp.tallererp.controller;
 
-import com.jcfp.tallererp.model.Marca;
+import com.jcfp.tallererp.entity.Marca;
 import com.jcfp.tallererp.service.MarcaService;
 import com.jcfp.tallererp.util.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;

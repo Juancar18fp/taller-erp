@@ -2,7 +2,7 @@
   "name": "frontend",
   "version": "0.0.1",
   "description": "Proyecto de un ERP de un taller para el TFG",
-  "productName": "taller-erp",
+  "productName": "TallerPro",
   "author": "Fajardo <juancar18fp@gmail.com>",
   "type": "module",
   "private": true,
@@ -17,6 +17,8 @@
   "dependencies": {
     "@quasar/extras": "^1.16.4",
     "axios": "^1.2.1",
+    "papaparse": "^5.5.3",
+    "pinia": "^3.0.3",
     "quasar": "^2.16.0",
     "vue": "^3.4.18",
     "vue-router": "^4.0.12"
@@ -25,6 +27,7 @@
     "@eslint/js": "^9.14.0",
     "@quasar/app-vite": "^2.1.0",
     "@types/node": "^20.5.9",
+    "@types/papaparse": "^5.3.16",
     "@vue/eslint-config-prettier": "^10.1.0",
     "@vue/eslint-config-typescript": "^14.4.0",
     "autoprefixer": "^10.4.2",

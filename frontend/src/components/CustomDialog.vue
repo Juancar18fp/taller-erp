@@ -55,10 +55,17 @@ interface BaseEntity {
   [key: string]: unknown;
 }
 
+// Interfaz específica para modelos
+interface ModeloEditData {
+  id: number;
+  nombre: string;
+  marca: number | null;
+}
+
 const props = defineProps<{
   modelValue: boolean;
   route: string;
-  editData?: BaseEntity | undefined;
+  editData?: BaseEntity | ModeloEditData | null | undefined;
 }>();
 
 type FormComponents = Record<RouteKey, Component>;
@@ -72,9 +79,9 @@ const formComponents: FormComponents = {
 } as const;
 
 const currentForm = computed(() => {
-  const baseRoute = props.route.split("/")[1] as RouteKey extends `/${infer T}` ? T : never;
-  const routeKey = `/${baseRoute}` as RouteKey;
-  return formComponents[routeKey] || ClientesForm;
+  const routeKey = props.route as RouteKey;
+
+  return formComponents[routeKey];
 });
 
 type TitleMap = Record<RouteKey, { create: string; edit: string }>;
@@ -88,8 +95,7 @@ const dialogTitle = computed(() => {
     "/empleados": { create: "Nuevo Empleado", edit: "Editar Empleado" },
   } as const;
 
-  const baseRoute = props.route.split("/")[1];
-  const routeKey = `/${baseRoute}` as RouteKey;
+  const routeKey = props.route as RouteKey;
   const isEditing = !!props.editData?.id;
 
   return titles[routeKey]
@@ -103,7 +109,7 @@ const dialogTitle = computed(() => {
 
 const getSubtitle = () => {
   const isEditing = !!props.editData?.id;
-  const baseRoute = props.route.split("/")[1];
+  const baseRoute = props.route.replace("/", "");
 
   const subtitles = {
     clientes: isEditing
@@ -128,7 +134,7 @@ const getSubtitle = () => {
 };
 
 const getHeaderIcon = () => {
-  const baseRoute = props.route.split("/")[1];
+  const baseRoute = props.route.replace("/", "");
   const isEditing = !!props.editData?.id;
 
   const icons = {
@@ -137,6 +143,8 @@ const getHeaderIcon = () => {
     articulos: isEditing ? "inventory" : "add_box",
     ordenes: isEditing ? "edit_note" : "note_add",
     empleados: isEditing ? "edit" : "person_add",
+    marcas: isEditing ? "edit" : "add_business",
+    modelos: isEditing ? "edit" : "add_business",
   };
 
   return icons[baseRoute as keyof typeof icons] || (isEditing ? "edit" : "add");

@@ -1,6 +1,6 @@
 package com.jcfp.tallererp.service;
 
-import com.jcfp.tallererp.model.Vehiculo;
+import com.jcfp.tallererp.entity.Vehiculo;
 import com.jcfp.tallererp.util.CrudService;
 
 

@@ -1,6 +1,6 @@
 package com.jcfp.tallererp.controller;
 
-import com.jcfp.tallererp.model.Puesto;
+import com.jcfp.tallererp.entity.Puesto;
 import com.jcfp.tallererp.service.PuestoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

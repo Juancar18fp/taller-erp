@@ -6,22 +6,27 @@ export interface EmpleadoPayload extends Persona {
     id: string;
     nombre?: string;
   };
-
   numeroSeguridadSocial: string;
-  rol: {
-    id: string;
-    nombre?: string;
-  };
   contratos: Contrato[];
 }
 
 export interface Contrato {
   id?: string;
-  puesto: { id: string };
+  puesto: {
+    id: string;
+    nombre?: string;
+    rol?: Rol;
+  };
   fechaContratacion: string | null;
   fechaFinalizacion?: string | null;
-  tipoContrato: { id: string };
-  jornadaLaboral: { id: string };
+  tipoContrato: {
+    id: string;
+    nombre?: string;
+  };
+  jornadaLaboral: {
+    id: string;
+    nombre?: string;
+  };
   salario: string | number;
   numeroCuenta: string;
   empleado: {
@@ -30,12 +35,17 @@ export interface Contrato {
   activo: boolean;
   expanded: boolean;
 }
-export interface Empleado extends EmpleadoPayload {
+
+export interface Empleado extends Omit<EmpleadoPayload, "rol"> {
   id: number;
+  activo?: boolean;
+  rol?: Rol;
 }
 
-export interface EmpleadoEditData extends EmpleadoPayload {
+export interface EmpleadoEditData extends Omit<EmpleadoPayload, "rol"> {
   id: number;
+  activo?: boolean;
+  rol?: Rol;
 }
 
 export interface EstadoCivil {
@@ -46,6 +56,7 @@ export interface EstadoCivil {
 export interface Puesto {
   id: string;
   nombre: string;
+  rol: Rol;
 }
 
 export interface TipoContrato {
@@ -61,4 +72,17 @@ export interface JornadaLaboral {
 export interface Rol {
   id: string;
   nombre: string;
+  descripcion?: string;
+}
+
+// Tipos auxiliares para respuestas del backend
+export interface EmpleadoResponse extends Empleado {
+  contratos: ContratoResponse[];
+}
+
+export interface ContratoResponse
+  extends Omit<Contrato, "puesto" | "tipoContrato" | "jornadaLaboral"> {
+  puesto: Puesto; // Puesto completo con rol
+  tipoContrato: TipoContrato; // Tipo de contrato completo
+  jornadaLaboral: JornadaLaboral; // Jornada laboral completa
 }

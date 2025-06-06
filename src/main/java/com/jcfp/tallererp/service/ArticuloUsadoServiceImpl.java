@@ -1,9 +1,9 @@
 package com.jcfp.tallererp.service;
 
 import com.jcfp.tallererp.dto.ArticuloUsadoDTO;
-import com.jcfp.tallererp.model.Articulo;
-import com.jcfp.tallererp.model.ArticuloUsado;
-import com.jcfp.tallererp.model.OrdenTrabajo;
+import com.jcfp.tallererp.entity.Articulo;
+import com.jcfp.tallererp.entity.ArticuloUsado;
+import com.jcfp.tallererp.entity.OrdenTrabajo;
 import com.jcfp.tallererp.repository.ArticuloRepository;
 import com.jcfp.tallererp.repository.ArticuloUsadoRepository;
 import com.jcfp.tallererp.repository.OrdenTrabajoRepository;

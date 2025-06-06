@@ -1,6 +1,6 @@
 package com.jcfp.tallererp.service;
 
-import com.jcfp.tallererp.model.EstadoCivil;
+import com.jcfp.tallererp.entity.EstadoCivil;
 import com.jcfp.tallererp.util.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.jcfp.tallererp.repository.EstadoCivilRepository;

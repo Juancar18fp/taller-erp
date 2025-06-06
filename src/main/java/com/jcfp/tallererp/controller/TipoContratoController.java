@@ -1,6 +1,6 @@
 package com.jcfp.tallererp.controller;
 
-import com.jcfp.tallererp.model.TipoContrato;
+import com.jcfp.tallererp.entity.TipoContrato;
 import com.jcfp.tallererp.service.TipoContratoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

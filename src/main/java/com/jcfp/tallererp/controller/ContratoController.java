@@ -1,7 +1,7 @@
 package com.jcfp.tallererp.controller;
 
 import com.jcfp.tallererp.dto.PuestoEmpleadoDTO;
-import com.jcfp.tallererp.model.Contrato;
+import com.jcfp.tallererp.entity.Contrato;
 import com.jcfp.tallererp.service.ContratoService;
 import com.jcfp.tallererp.util.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;

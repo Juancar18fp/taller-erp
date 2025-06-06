@@ -24,13 +24,6 @@
               class="q-ml-lg"
             >
               <q-tab
-                name="inicio"
-                label="Dashboard"
-                icon="dashboard"
-                @click="navigateTo('/')"
-                class="text-weight-medium"
-              />
-              <q-tab
                 v-for="item in navigationItems"
                 :key="item.route"
                 :name="item.route"
@@ -85,55 +78,79 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from "vue";
+import { ref, computed, watch, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
+import { useAuthStore } from "src/stores/auth";
 
 const router = useRouter();
 const route = useRoute();
+const authStore = useAuthStore();
 
 const activeTab = ref("inicio");
 
-const userName = ref("Juan Pérez");
-const userRole = ref("Administrador");
-const userInitials = computed(() => {
-  return userName.value
-    .split(" ")
-    .map((n) => n[0])
-    .join("");
+const userName = computed(() => authStore.usuario?.nombre || "Usuario");
+const userRole = computed(() => {
+  const roleNames = {
+    ADMINISTRADOR: "Administrador",
+    TECNICO: "Técnico",
+    RECEPCIONISTA: "Recepcionista",
+    ALMACEN: "Almacén",
+  };
+  return roleNames[authStore.userRole as keyof typeof roleNames] || authStore.userRole;
 });
 
-const navigationItems = [
+const userInitials = computed(() => {
+  const names = userName.value.trim().split(" ");
+  if (names.length === 0) return "";
+
+  const firstInitial = names[0]?.[0] || "";
+  const secondInitial = names[1]?.[0] || "";
+
+  return (firstInitial + secondInitial).toUpperCase();
+});
+
+const allNavigationItems = [
   {
     route: "clientes",
     name: "Clientes",
     icon: "people",
+    permission: "clientes",
   },
   {
     route: "vehiculos",
     name: "Vehículos",
     icon: "directions_car",
+    permission: "vehiculos",
   },
   {
     route: "articulos",
     name: "Artículos",
     icon: "inventory",
+    permission: "articulos",
   },
   {
     route: "ordenes",
     name: "Órdenes de trabajo",
     icon: "build",
+    permission: "ordenes",
   },
   {
     route: "empleados",
     name: "Empleados",
     icon: "badge",
+    permission: "empleados",
   },
   {
     route: "configuracion",
     name: "Configuración",
     icon: "settings",
+    permission: "configuracion",
   },
 ];
+
+const navigationItems = computed(() => {
+  return allNavigationItems.filter((item) => authStore.hasPermission(item.permission));
+});
 
 const navigateTo = async (path: string) => {
   try {
@@ -141,6 +158,12 @@ const navigateTo = async (path: string) => {
       await router.push(path);
       activeTab.value = "inicio";
     } else {
+      const item = allNavigationItems.find((item) => item.route === path);
+      if (item && !authStore.hasPermission(item.permission)) {
+        console.warn("No tienes permisos para acceder a esta sección");
+        return;
+      }
+
       await router.push({ name: path });
       activeTab.value = path;
     }
@@ -153,22 +176,41 @@ const goHome = async () => {
   await navigateTo("/");
 };
 
-const showSettings = () => {};
+const showSettings = async () => {
+  if (authStore.hasPermission("configuracion")) {
+    await navigateTo("configuracion");
+  } else {
+    console.warn("No tienes permisos para acceder a la configuración");
+  }
+};
 
-const logout = () => {};
+const logout = async () => {
+  try {
+    authStore.logout();
+    await router.push("/login");
+  } catch (error) {
+    console.error("Error al cerrar sesión:", error);
+  }
+};
+
+onMounted(() => {
+  authStore.initializeAuth();
+  if (!authStore.isAuthenticated) {
+    void router.push("/login");
+  }
+});
 
 watch(
   () => route.name,
   (newRoute) => {
     if (newRoute) {
-      const item = navigationItems.find((item) => item.route === newRoute);
+      const item = navigationItems.value.find((item) => item.route === newRoute);
       activeTab.value = item ? item.route : "inicio";
     }
   },
   { immediate: true },
 );
 </script>
-
 <style scoped>
 .bg-gradient-to-r {
   background: linear-gradient(to right, #1e3a8a, #1e40af);

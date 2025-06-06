@@ -8,7 +8,6 @@
               <q-icon name="person" class="section-icon" />
               <h3 class="section-title">Información Personal</h3>
             </div>
-
             <div class="inputs-container">
               <CustomInput
                 v-model="form.nombre"
@@ -16,6 +15,19 @@
                 placeholder="Ingrese el nombre completo del empleado"
                 obligatorio
               />
+              <div v-if="editData" class="password-button-container">
+                <q-btn
+                  icon="lock_reset"
+                  label="Cambiar Contraseña"
+                  color="orange"
+                  outline
+                  size="md"
+                  @click="mostrarDialogoPassword = true"
+                  class="password-btn"
+                >
+                  <q-tooltip>Cambiar contraseña del empleado</q-tooltip>
+                </q-btn>
+              </div>
 
               <div class="input-row">
                 <CustomInput
@@ -114,18 +126,6 @@
               <q-icon name="description" class="section-icon" />
               <h3 class="section-title">Contratos</h3>
               <q-space />
-              <q-select
-                class="input-large"
-                v-model="rolSeleccionado"
-                :options="roles"
-                label="Rol del empleado *"
-                option-label="nombre"
-                option-value="id"
-                outlined
-                dense
-                emit-value
-                map-options
-              />
               <q-btn
                 icon="add"
                 size="sm"
@@ -137,6 +137,15 @@
               >
                 <q-tooltip>Agregar nuevo contrato</q-tooltip>
               </q-btn>
+            </div>
+
+            <div v-if="rolCalculado" class="rol-calculado">
+              <q-banner class="bg-blue-1 text-blue-8">
+                <template v-slot:avatar>
+                  <q-icon name="info" color="blue" />
+                </template>
+                <strong>Rol actual:</strong> {{ rolCalculado.nombre }}
+              </q-banner>
             </div>
 
             <div class="contracts-container" v-if="form.contratos.length > 0">
@@ -151,6 +160,15 @@
                       size="sm"
                     >
                       {{ contrato.activo ? "Activo" : "Inactivo" }}
+                    </q-chip>
+                    <q-chip
+                      v-if="getPuestoRol(contrato.puesto.id)"
+                      color="blue"
+                      text-color="white"
+                      size="sm"
+                      class="ml-1"
+                    >
+                      Rol: {{ getPuestoRol(contrato.puesto.id) }}
                     </q-chip>
                   </div>
                   <div class="contract-actions">
@@ -311,15 +329,22 @@
       />
     </div>
   </div>
+  <CambiarPasswordDialog
+    v-model="mostrarDialogoPassword"
+    :empleado-id="editData?.id || ''"
+    :empleado-nombre="form.nombre"
+    @close="mostrarDialogoPassword = false"
+  />
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch } from "vue";
+import { onMounted, ref, watch, computed } from "vue";
 import { useQuasar } from "quasar";
 import CustomInput from "./CustomInput.vue";
 import tallerApi from "../api/tallerApi";
 import type { Contrato, EmpleadoEditData, EmpleadoPayload } from "src/types/entities/empleado";
 import { useEmpleadosForm } from "src/composables/useEmpleadosForm";
+import CambiarPasswordDialog from "./CambiarPassDialog.vue";
 
 const $q = useQuasar();
 const emit = defineEmits(["created", "updated", "cancel"]);
@@ -330,7 +355,9 @@ const props = defineProps<{
 
 const formRef = ref();
 const loading = ref(false);
+const mostrarDialogoPassword = ref(false);
 
+// ELIMINAR: Ya no necesitamos rol en el form principal
 const form = ref<EmpleadoPayload>({
   nombre: "",
   fechaNacimiento: "",
@@ -346,26 +373,35 @@ const form = ref<EmpleadoPayload>({
   estadoCivil: {
     id: "",
   },
-  rol: {
-    id: "",
-  },
   contratos: [],
 });
 
 const {
   estadoCivilSeleccionado,
-  rolSeleccionado,
   estadosCiviles,
   jornadasLaborales,
   tiposContrato,
   puestos,
-  roles,
   cargarEstadoCivil,
   cargarJornadasLaborales,
   cargarTiposContrato,
   cargarPuestos,
-  cargarRoles,
 } = useEmpleadosForm();
+
+const rolCalculado = computed(() => {
+  const contratoActivo = form.value.contratos.find((c) => c.activo);
+  if (contratoActivo && contratoActivo.puesto?.id) {
+    const puesto = puestos.value.find((p) => p.id == contratoActivo.puesto.id);
+    return puesto?.rol || null;
+  }
+  return null;
+});
+
+const getPuestoRol = (puestoId: string) => {
+  if (!puestoId) return null;
+  const puesto = puestos.value.find((p) => p.id == puestoId);
+  return puesto?.rol?.nombre || null;
+};
 
 const validEmail = (val: string | null) => {
   if (!val) return true;
@@ -463,8 +499,7 @@ const handleSubmit = async () => {
       email: form.value.email,
       telefono: form.value.telefono,
       numeroSeguridadSocial: form.value.numeroSeguridadSocial,
-      rol: { id: rolSeleccionado.value },
-      estadoCivil: { id: estadoCivilSeleccionado.value },
+      estadoCivil: { id: estadoCivilSeleccionado.value || null },
     };
 
     let empleadoId;
@@ -574,15 +609,11 @@ const resetForm = () => {
     estadoCivil: {
       id: "",
     },
-    rol: {
-      id: "",
-    },
     contratos: [],
   };
 
   formRef.value?.resetValidation();
   estadoCivilSeleccionado.value = "";
-  rolSeleccionado.value = "";
 };
 
 watch(
@@ -602,7 +633,7 @@ watch(
         telefono: data.telefono || "",
         email: data.email || "",
         numeroSeguridadSocial: data.numeroSeguridadSocial || "",
-        rol: data.rol || { id: "" },
+
         contratos: data.contratos
           ? data.contratos.map((contrato) => ({
               ...contrato,
@@ -641,9 +672,6 @@ watch(
       const estadoCivilId =
         typeof data.estadoCivil === "object" ? data.estadoCivil.id : data.estadoCivil;
       estadoCivilSeleccionado.value = estadoCivilId?.toString() || "";
-
-      const rolId = typeof data.rol === "object" ? data.rol.id : data.rol;
-      rolSeleccionado.value = rolId?.toString() || "";
     } else {
       resetForm();
     }
@@ -656,11 +684,18 @@ onMounted(async () => {
   await cargarJornadasLaborales();
   await cargarTiposContrato();
   await cargarPuestos();
-  await cargarRoles();
 });
 </script>
 
 <style scoped>
+.rol-calculado {
+  margin-bottom: 16px;
+}
+
+.ml-1 {
+  margin-left: 4px;
+}
+
 .contract-actions-bottom {
   display: flex;
   align-items: center;
@@ -715,5 +750,24 @@ onMounted(async () => {
   text-align: center;
   padding: 40px;
   color: #666;
+}
+.password-button-container {
+  display: flex;
+  align-items: flex-end;
+  padding-bottom: 8px;
+}
+
+.password-btn {
+  height: 40px;
+}
+
+.input-row {
+  display: flex;
+  gap: 16px;
+  align-items: flex-end;
+}
+
+.input-large {
+  flex: 1;
 }
 </style>

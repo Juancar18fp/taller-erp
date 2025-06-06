@@ -3,7 +3,6 @@
     <q-scroll-area class="form-scroll-area">
       <q-form ref="formRef" @submit="handleSubmit" class="form-content">
         <div class="form-grid">
-          <!-- Información básica de la orden -->
           <div class="form-section">
             <div class="section-header">
               <q-icon name="work" class="section-icon" />
@@ -12,27 +11,19 @@
 
             <div class="inputs-container">
               <div class="input-row">
-                <CustomInput
-                  v-model="ordenForm.codigoOrden"
-                  label="Código de orden *"
-                  placeholder="Ingrese el código"
-                  obligatorio
-                  :rules="[required]"
-                  class="input-large"
-                />
+                <div class="readonly-field">
+                  <label class="readonly-label">Código de orden</label>
+                  <div class="readonly-value">
+                    {{ ordenForm.codigoOrden || "Se generará automáticamente" }}
+                  </div>
+                </div>
 
-                <!-- Fecha de orden automática -->
-                <q-input
-                  v-model="fechaOrdenDisplay"
-                  label="Fecha de orden"
-                  readonly
-                  outlined
-                  dense
-                  class="input-large"
-                />
+                <div class="readonly-field">
+                  <label class="readonly-label">Fecha de orden</label>
+                  <div class="readonly-value">{{ fechaOrdenDisplay }}</div>
+                </div>
               </div>
 
-              <!-- Vehículo siempre requerido -->
               <q-select
                 v-model="vehiculoSeleccionado"
                 :options="vehiculosOptions"
@@ -42,6 +33,7 @@
                 map-options
                 emit-value
                 input-debounce="300"
+                label="Vehículo"
                 :placeholder="!vehiculoSeleccionado ? 'Buscar vehiculo...' : ''"
                 outlined
                 dense
@@ -49,6 +41,8 @@
                 :rules="[required]"
                 class="input-large"
                 @filter="filtrarVehiculos"
+                @update:model-value="actualizarCliente"
+                :disable="!puedeEditarOrden"
               >
                 <template v-slot:no-option>
                   <q-item>
@@ -65,6 +59,14 @@
                   </q-item>
                 </template>
               </q-select>
+
+              <!-- Cliente -->
+              <div class="readonly-field">
+                <label class="readonly-label">Cliente</label>
+                <div class="readonly-value">
+                  {{ clienteNombre || "Se rellenará automáticamente" }}
+                </div>
+              </div>
             </div>
           </div>
 
@@ -121,6 +123,7 @@
                   clearable
                   :label="empleadoSeleccionado ? 'Técnico asignado' : 'Asignar técnico'"
                   class="input-large"
+                  :disable="!puedeEditarOrden"
                   @filter="filtrarEmpleados"
                 />
               </div>
@@ -202,7 +205,17 @@
               outlined
               rows="4"
               class="textarea-full"
+              :readonly="!puedeEditarOrden"
             />
+          </div>
+          <div v-if="!esNuevaOrden && !puedeEditarOrden" class="readonly-notice">
+            <q-banner class="bg-blue-1 text-blue-8" rounded>
+              <template v-slot:avatar>
+                <q-icon name="info" color="blue" />
+              </template>
+              Esta orden no se puede modificar porque está
+              {{ getEstadoNombre(estadoActual).toLowerCase() }}.
+            </q-banner>
           </div>
 
           <!-- Artículos utilizados -->
@@ -217,11 +230,7 @@
                 round
                 @click="agregarArticulo"
                 class="add-btn"
-                :disable="
-                  estadoActual === 'FINALIZADA' ||
-                  estadoActual === 'CANCELADA' ||
-                  estadoActual === 'COMPLETADA'
-                "
+                :disable="!puedeEditarArticulos"
               />
             </div>
 
@@ -231,43 +240,56 @@
                 :key="index"
                 class="articulo-item"
               >
-                <q-select
-                  v-model="articuloUsado.articulo"
-                  :options="articulosOptions"
-                  option-value="id"
-                  option-label="descripcion"
-                  use-input
-                  input-debounce="300"
-                  map-options
-                  @filter="filtrarArticulos"
-                  :placeholder="!articuloUsado.articulo ? 'Buscar artículo...' : ''"
-                  outlined
-                  dense
-                  clearable
-                  :disable="
-                    estadoActual === 'FINALIZADA' ||
-                    estadoActual === 'CANCELADA' ||
-                    estadoActual === 'COMPLETADA'
-                  "
-                  @update:model-value="(val) => actualizarPrecioArticulo(index, val)"
-                />
+                <!-- Artículo (columna 1) - AÑADIR CONTENEDOR -->
+                <div class="articulo-select-container">
+                  <q-select
+                    v-model="articuloUsado.articulo"
+                    :options="articulosOptions"
+                    option-value="id"
+                    option-label="descripcion"
+                    use-input
+                    input-debounce="300"
+                    map-options
+                    @filter="filtrarArticulos"
+                    :placeholder="!articuloUsado.articulo ? 'Buscar artículo...' : ''"
+                    outlined
+                    dense
+                    clearable
+                    :disable="!puedeEditarArticulos"
+                    @update:model-value="(val) => actualizarPrecioArticulo(index, val)"
+                    class="articulo-select"
+                  >
+                    <template v-slot:option="scope">
+                      <q-item v-bind="scope.itemProps">
+                        <q-item-section>
+                          <q-item-label>{{ scope.opt.descripcion }}</q-item-label>
+                          <q-item-label caption>
+                            Stock: {{ scope.opt.stock }} | €{{ scope.opt.precio.toFixed(2) }}
+                          </q-item-label>
+                        </q-item-section>
+                      </q-item>
+                    </template>
+                  </q-select>
+                </div>
 
-                <q-input
-                  v-model.number="articuloUsado.cantidad"
-                  label="Cantidad"
-                  type="number"
-                  outlined
-                  dense
-                  min="1"
-                  :disable="
-                    estadoActual === 'FINALIZADA' ||
-                    estadoActual === 'CANCELADA' ||
-                    estadoActual === 'COMPLETADA'
-                  "
-                  class="cantidad-input"
-                  @update:model-value="calcularTotal"
-                />
+                <!-- Cantidad (columna 2) - AÑADIR CONTENEDOR Y LABEL -->
+                <div class="cantidad-container">
+                  <div class="cantidad-label">Cantidad</div>
+                  <q-input
+                    v-model.number="articuloUsado.cantidad"
+                    type="number"
+                    outlined
+                    dense
+                    min="1"
+                    :max="articuloUsado.articulo?.stock || 999"
+                    :disable="!puedeEditarArticulos"
+                    class="cantidad-input"
+                    @update:model-value="(val) => validarCantidadStock(index, Number(val) || 0)"
+                    :rules="[(val) => validarStock(index, Number(val) || 0)]"
+                  />
+                </div>
 
+                <!-- Precios (columna 3) - MANTENER IGUAL -->
                 <div class="precio-info">
                   <span class="precio-unitario">
                     €{{ (articuloUsado.articulo?.precio || 0).toFixed(2) }}
@@ -279,18 +301,18 @@
                       ).toFixed(2)
                     }}
                   </span>
+                  <span class="stock-info" v-if="articuloUsado.articulo?.stock !== undefined">
+                    Stock: {{ articuloUsado.articulo.stock }}
+                  </span>
                 </div>
 
+                <!-- Botón borrar (columna 4) - MANTENER IGUAL -->
                 <q-btn
                   icon="delete"
                   color="negative"
                   dense
                   round
-                  :disable="
-                    estadoActual === 'FINALIZADA' ||
-                    estadoActual === 'CANCELADA' ||
-                    estadoActual === 'COMPLETADA'
-                  "
+                  :disable="!puedeEditarArticulos"
                   @click="removerArticulo(index)"
                   class="delete-btn"
                 />
@@ -325,16 +347,16 @@
         :loading="loading"
         @click="handleSubmit"
         class="submit-btn"
+        :disable="!esNuevaOrden && !puedeEditarOrden"
       />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import {computed, onMounted, ref, watch} from "vue";
-import type {QNotifyCreateOptions} from "quasar";
-import {useQuasar} from "quasar";
-import CustomInput from "./CustomInput.vue";
+import { computed, onMounted, ref, watch } from "vue";
+import type { QNotifyCreateOptions } from "quasar";
+import { useQuasar } from "quasar";
 import tallerApi from "src/api/tallerApi";
 import type {
   ArticuloUsado,
@@ -396,7 +418,6 @@ const ordenForm = ref<OrdenTrabajoPayload>({
 
 const required = (val: string | null) => !!val || "Campo obligatorio";
 
-// Estados
 const empleadoSeleccionado = ref<Empleado | null>(null);
 const vehiculoSeleccionado = ref<Vehiculo | null>(null);
 const estadoActual = ref<string>("PENDIENTE");
@@ -405,15 +426,25 @@ const vehiculosOptions = ref<Vehiculo[]>([]);
 const articulosOptions = ref<Articulo[]>([]);
 const estadosOrden = ref<EstadoOrden[]>([]);
 
-// Computeds
 const esNuevaOrden = computed(() => !props.editData?.id);
 const tieneEmpleadoAsignado = computed(() => !!ordenForm.value.empleadoAsignado?.id);
 const puedeSerCancelada = computed(() => {
   return !["COMPLETADA", "CANCELADA"].includes(estadoActual.value);
 });
 
+const puedeEditarArticulos = computed(() => {
+  return ["PENDIENTE", "INICIADA"].includes(estadoActual.value);
+});
+const puedeEditarOrden = computed(() => {
+  return !["FINALIZADA", "COMPLETADA", "CANCELADA"].includes(estadoActual.value);
+});
+
 const fechaOrdenDisplay = computed(() => {
-  return new Date().toISOString().split("T")[0];
+  const hoy = new Date();
+  const dia = hoy.getDate().toString().padStart(2, "0");
+  const mes = (hoy.getMonth() + 1).toString().padStart(2, "0");
+  const anio = hoy.getFullYear();
+  return `${dia}/${mes}/${anio}`;
 });
 
 const totalArticulos = computed(() => {
@@ -424,7 +455,52 @@ const totalArticulos = computed(() => {
   }, 0);
 });
 
-// Funciones de estado
+const generarCodigoOrden = async () => {
+  if (!esNuevaOrden.value) return;
+
+  const hoy = new Date();
+  const dia = hoy.getDate().toString().padStart(2, "0");
+  const mes = (hoy.getMonth() + 1).toString().padStart(2, "0");
+  const anio = hoy.getFullYear().toString();
+
+  try {
+    const { data } = await tallerApi.get(
+      `/ordenes/siguiente-numero?fecha=${hoy.toISOString().split("T")[0]}`,
+    );
+    const numeroOrden = data.siguienteNumero.toString().padStart(3, "0");
+    ordenForm.value.codigoOrden = `OT-${anio}${mes}${dia}-${numeroOrden}`;
+  } catch (error) {
+    console.error("Error generando código:", error);
+    ordenForm.value.codigoOrden = `OT-${anio}${mes}${dia}-001`;
+  }
+};
+const validarStock = (index: number, cantidad: number) => {
+  const articulo = ordenForm.value.articulosUsados[index]?.articulo;
+  if (!articulo || !cantidad || typeof articulo.stock !== "number") return true;
+
+  if (cantidad > articulo.stock) {
+    return `Stock insuficiente. Disponible: ${articulo.stock}`;
+  }
+  return true;
+};
+
+const validarCantidadStock = (index: number, cantidad: number) => {
+  const articuloUsado = ordenForm.value.articulosUsados[index];
+  const articulo = articuloUsado?.articulo;
+
+  if (articulo && typeof articulo.stock === "number" && cantidad > articulo.stock) {
+    $q.notify({
+      type: "warning",
+      message: `Stock insuficiente. Disponible: ${articulo.stock}`,
+      timeout: 2000,
+    });
+    if (articuloUsado) {
+      articuloUsado.cantidad = articulo.stock;
+    }
+  }
+  calcularTotal();
+};
+
 const getEstadoColor = (estado: string) => {
   const colores = {
     PENDIENTE: "orange",
@@ -453,7 +529,6 @@ const formatearFecha = (fecha: string) => {
   return new Date(fecha).toLocaleDateString("es-ES");
 };
 
-// Funciones de gestión de estado
 const asignarTecnico = async () => {
   if (!empleadoSeleccionado.value) return;
 
@@ -470,6 +545,8 @@ const iniciarTrabajo = async () => {
 };
 
 const finalizarTrabajo = async () => {
+  await descontarStockArticulos();
+
   const nuevoEstado = ordenForm.value.pagada ? "COMPLETADA" : "PENDIENTE_PAGO";
   await cambiarEstado(nuevoEstado, {
     fechaFinalizacion: new Date().toISOString().split("T")[0],
@@ -482,7 +559,6 @@ const marcarComoPagada = async () => {
     fechaPago: new Date().toISOString().split("T")[0],
   };
 
-  // Si está finalizada o pendiente de pago, pasa a completada
   const nuevoEstado =
     estadoActual.value === "FINALIZADA" || estadoActual.value === "PENDIENTE_PAGO"
       ? "COMPLETADA"
@@ -509,6 +585,60 @@ const cancelarOrden = async () => {
   });
 };
 
+const descontarStockArticulos = async () => {
+  try {
+    for (const articuloUsado of ordenForm.value.articulosUsados) {
+      if (articuloUsado.articulo?.id && articuloUsado.cantidad) {
+        await tallerApi.put(`/articulos/${articuloUsado.articulo.id}/descontar-stock`, {
+          cantidad: articuloUsado.cantidad,
+        });
+      }
+    }
+  } catch (error) {
+    console.error("Error descontando stock:", error);
+    $q.notify({
+      type: "warning",
+      message: "Error al descontar stock de algunos artículos",
+    });
+  }
+};
+
+const clienteNombre = ref<string>("");
+
+const actualizarCliente = (vehiculoId: string | null) => {
+  if (vehiculoId) {
+    let vehiculo = vehiculosOptions.value.find((v) => v.id === vehiculoId);
+
+    if (!vehiculo && vehiculoSeleccionado.value) {
+      if (
+        typeof vehiculoSeleccionado.value === "object" &&
+        vehiculoSeleccionado.value.id === vehiculoId
+      ) {
+        vehiculo = vehiculoSeleccionado.value;
+      }
+    }
+
+    if (vehiculo && vehiculo.cliente) {
+      clienteNombre.value = vehiculo.cliente.nombre;
+    } else {
+      console.warn("No se encontró vehículo o cliente para ID:", vehiculoId);
+    }
+  } else {
+    clienteNombre.value = "";
+  }
+};
+
+const cargarClienteDesdeVehiculo = async (vehiculoId: string) => {
+  try {
+    const { data: vehiculo } = await tallerApi.get<Vehiculo>(`/vehiculos/${vehiculoId}`);
+    if (vehiculo && vehiculo.cliente) {
+      clienteNombre.value = vehiculo.cliente.nombre;
+    }
+  } catch (error) {
+    console.error("Error cargando cliente desde vehículo:", error);
+  }
+};
+
 const cambiarEstado = async (
   nuevoEstado: string,
   datosAdicionales: Record<string, unknown> = {},
@@ -520,13 +650,12 @@ const cambiarEstado = async (
       throw new Error(`Estado ${nuevoEstado} no encontrado`);
     }
 
-    // IMPORTANTE: Excluir articulosUsados del payload
     const { articulosUsados: _, ...ordenSinArticulos } = ordenForm.value;
-    void _; // Silenciar ESLint
+    void _;
 
     const payload = {
       id: props.editData!.id,
-      ...ordenSinArticulos, // Sin articulosUsados
+      ...ordenSinArticulos,
       estadoOrden: { id: estadoObj.id },
       empleadoAsignado: empleadoSeleccionado.value
         ? {
@@ -541,10 +670,8 @@ const cambiarEstado = async (
 
     await tallerApi.put(`/ordenes/${props.editData!.id}`, payload);
 
-    // Recargar los datos completos del backend
     const { data: ordenActualizada } = await tallerApi.get(`/ordenes/${props.editData!.id}`);
 
-    // Actualizar completamente los datos locales
     if (ordenActualizada.estadoOrden) {
       const estadoEncontrado = estadosOrden.value.find(
         (e) => e.id == ordenActualizada.estadoOrden.id,
@@ -552,10 +679,8 @@ const cambiarEstado = async (
       estadoActual.value = estadoEncontrado?.nombre || "PENDIENTE";
     }
 
-    // Actualizar el form con los datos frescos del backend
     Object.assign(ordenForm.value, ordenActualizada);
 
-    // Actualizar empleado y vehículo seleccionados si es necesario
     if (ordenActualizada.empleadoAsignado?.id && !empleadoSeleccionado.value) {
       try {
         const { data: empleado } = await tallerApi.get(
@@ -581,7 +706,6 @@ const cambiarEstado = async (
   }
 };
 
-// Funciones de búsqueda
 const filtrarEmpleados = async (val: string, update: (fn: () => void) => void) => {
   if (val.length < 2) {
     update(() => {
@@ -644,7 +768,9 @@ const filtrarArticulos = async (val: string, update: (fn: () => void) => void) =
     });
 
     update(() => {
-      articulosOptions.value = Array.isArray(data) ? data : [];
+      articulosOptions.value = Array.isArray(data)
+        ? data.filter((articulo) => articulo.stock > 0)
+        : [];
     });
   } catch (error) {
     console.error("Error buscando artículos:", error);
@@ -654,7 +780,6 @@ const filtrarArticulos = async (val: string, update: (fn: () => void) => void) =
   }
 };
 
-// Gestión de artículos
 const agregarArticulo = () => {
   const nuevoArticulo: ArticuloUsado = {
     id: "",
@@ -674,12 +799,18 @@ const removerArticulo = (index: number) => {
 };
 
 const actualizarPrecioArticulo = (index: number, articulo: Articulo | null) => {
-  if (ordenForm.value.articulosUsados[index]) {
-    ordenForm.value.articulosUsados[index].articulo = articulo ?? {
+  const articuloUsado = ordenForm.value.articulosUsados[index];
+  if (articuloUsado) {
+    articuloUsado.articulo = articulo ?? {
       id: "",
       descripcion: "",
       precio: 0,
     };
+
+    if (articulo && typeof articulo.stock === "number" && articuloUsado.cantidad > articulo.stock) {
+      articuloUsado.cantidad = Math.min(articulo.stock, 1);
+    }
+
     calcularTotal();
   }
 };
@@ -688,7 +819,6 @@ const calcularTotal = () => {
   ordenForm.value.total = totalArticulos.value;
 };
 
-// Cargar datos iniciales
 const cargarEstadosOrden = async () => {
   try {
     const { data } = await tallerApi.get<EstadoOrden[]>("/estados-ordenes");
@@ -705,16 +835,40 @@ const cargarEstadosOrden = async () => {
   }
 };
 
-// Submit principal
 const handleSubmit = async () => {
+  if (!esNuevaOrden.value && !puedeEditarOrden.value) {
+    $q.notify({
+      type: "warning",
+      message:
+        "No se puede modificar una orden que está " +
+        getEstadoNombre(estadoActual.value).toLowerCase(),
+    });
+    return;
+  }
   const valid = await formRef.value?.validate();
   if (!valid) return;
+
+  for (let i = 0; i < ordenForm.value.articulosUsados.length; i++) {
+    const articuloUsado = ordenForm.value.articulosUsados[i];
+    if (
+      articuloUsado?.articulo &&
+      articuloUsado.cantidad &&
+      typeof articuloUsado.articulo.stock === "number"
+    ) {
+      if (articuloUsado.cantidad > articuloUsado.articulo.stock) {
+        $q.notify({
+          type: "negative",
+          message: `Stock insuficiente para ${articuloUsado.articulo.descripcion}. Disponible: ${articuloUsado.articulo.stock}`,
+        });
+        return;
+      }
+    }
+  }
 
   loading.value = true;
 
   try {
     if (esNuevaOrden.value) {
-      // === CREAR NUEVA ORDEN ===
       const estadoPendiente = estadosOrden.value.find((e) => e.nombre === "PENDIENTE");
 
       const payload = {
@@ -733,7 +887,6 @@ const handleSubmit = async () => {
 
       const response = await tallerApi.post("/ordenes", payload);
 
-      // Guardar artículos si los hay
       if (ordenForm.value.articulosUsados.length > 0) {
         await guardarArticulosUsadosEnOrden(response.data.id);
       }
@@ -742,20 +895,17 @@ const handleSubmit = async () => {
       emit("created");
       resetForm();
     } else {
-      // === EDITAR ORDEN EXISTENTE ===
       const { articulosUsados: _, ...payloadSinArticulos } = ordenForm.value;
       void _;
 
-      // Verificar si hay cambios en la orden principal
       const hayChangesEnOrden =
         ordenForm.value.codigoOrden !== props.editData?.codigoOrden ||
         ordenForm.value.observaciones !== props.editData?.observaciones ||
         totalArticulos.value !== props.editData?.total;
 
-      // Solo actualizar la orden si hay cambios
       if (hayChangesEnOrden) {
         const payload = {
-          id: props.editData!.id, // ← AÑADIR EL ID
+          id: props.editData!.id,
           ...payloadSinArticulos,
           empleadoAsignado: empleadoSeleccionado.value
             ? { id: empleadoSeleccionado.value.id || empleadoSeleccionado.value }
@@ -769,7 +919,6 @@ const handleSubmit = async () => {
         await tallerApi.put(`/ordenes/${props.editData!.id}`, payload);
       }
 
-      // Siempre guardar artículos (se controla internamente si hay cambios)
       if (ordenForm.value.articulosUsados.length > 0) {
         await guardarArticulosUsadosEnOrden(props.editData!.id);
       }
@@ -791,7 +940,6 @@ const handleSubmit = async () => {
 const guardarArticulosUsadosEnOrden = async (ordenId: string) => {
   try {
     for (const articulo of ordenForm.value.articulosUsados) {
-      // Validar que tenemos los datos necesarios
       if (!articulo.articulo?.id || !articulo.cantidad) {
         console.warn("Artículo sin datos completos, saltando:", articulo);
         continue;
@@ -803,15 +951,9 @@ const guardarArticulosUsadosEnOrden = async (ordenId: string) => {
         ordenTrabajoId: parseInt(ordenId),
       };
 
-      console.log("Enviando payload:", articuloPayload);
-
       if (articulo.id && props.editData?.id) {
-        // ACTUALIZAR artículo existente
-        console.log(`Actualizando artículo usado ID: ${articulo.id}`);
         await tallerApi.put(`/articulos-usados/guardar/${articulo.id}`, articuloPayload);
       } else {
-        // CREAR nuevo artículo
-        console.log("Creando nuevo artículo usado");
         await tallerApi.post(`/articulos-usados/guardar`, articuloPayload);
       }
     }
@@ -845,7 +987,6 @@ const resetForm = () => {
   formRef.value?.resetValidation();
 };
 
-// Watch para datos de edición
 watch(
   () => props.editData,
   async (data) => {
@@ -870,19 +1011,11 @@ watch(
           : [],
       };
 
-      // Cargar estado actual
       if (data.estadoOrden && estadosOrden.value.length > 0) {
         const estadoEncontrado = estadosOrden.value.find((e) => e.id == data.estadoOrden.id);
         estadoActual.value = estadoEncontrado?.nombre || "PENDIENTE";
-        console.log(
-          "Estado encontrado en watcher:",
-          estadoEncontrado,
-          "estadoActual:",
-          estadoActual.value,
-        );
       }
 
-      // Cargar empleado y vehículo
       if (data.empleadoAsignado?.id) {
         try {
           const { data: empleado } = await tallerApi.get<Empleado>(
@@ -900,8 +1033,13 @@ watch(
             `/vehiculos/${data.vehiculo.id}`,
           );
           vehiculoSeleccionado.value = vehiculo;
+
+          if (vehiculo.cliente) {
+            clienteNombre.value = vehiculo.cliente.nombre;
+          }
         } catch (error) {
           console.error("Error cargando vehículo:", error);
+          await cargarClienteDesdeVehiculo(data.vehiculo.id);
         }
       }
     } else {
@@ -910,6 +1048,7 @@ watch(
   },
   { immediate: true },
 );
+
 watch(
   () => estadosOrden.value,
   () => {
@@ -917,26 +1056,32 @@ watch(
     if (editData?.estadoOrden && estadosOrden.value.length > 0) {
       const estadoEncontrado = estadosOrden.value.find((e) => e.id == editData.estadoOrden.id);
       estadoActual.value = estadoEncontrado?.nombre || "PENDIENTE";
-      console.log("Estado actualizado tras cargar estados:", estadoActual.value);
     }
   },
 );
 
 onMounted(async () => {
   await cargarEstadosOrden();
+  if (esNuevaOrden.value) {
+    await generarCodigoOrden();
+  }
 });
 </script>
-
 <style scoped>
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  grid-template-rows: auto auto auto;
+  grid-template-rows: auto auto auto auto;
   gap: 1.5rem;
   grid-template-areas:
     "info estado"
+    "pago pago"
     "observaciones observaciones"
     "articulos articulos";
+}
+
+.pago-section {
+  grid-area: pago;
 }
 
 .form-section:nth-child(1) {
@@ -1056,7 +1201,7 @@ onMounted(async () => {
 
 .articulo-item {
   display: grid;
-  grid-template-columns: 2fr 100px 120px 40px;
+  grid-template-columns: 1fr auto auto auto;
   gap: 12px;
   align-items: center;
   padding: 12px;
@@ -1072,20 +1217,51 @@ onMounted(async () => {
   box-shadow: 0 2px 8px rgba(59, 130, 246, 0.15);
 }
 
+.articulo-select-container {
+  min-width: 0;
+}
+
+.articulo-select {
+  width: 100%;
+}
+
 .precio-info {
   display: flex;
   flex-direction: column;
   text-align: right;
+  min-width: 120px;
+  align-items: flex-end;
 }
 
 .precio-unitario {
   font-size: 0.85em;
   color: #666;
+  margin-bottom: 2px;
 }
 
 .precio-total {
   font-weight: 600;
   color: #1976d2;
+  font-size: 1em;
+}
+
+.cantidad-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 80px;
+}
+
+.cantidad-label {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 4px;
+  text-align: center;
+}
+
+.cantidad-input {
+  width: 70px;
+  text-align: center;
 }
 
 .total-container {
@@ -1111,6 +1287,16 @@ onMounted(async () => {
 .total-value {
   color: #1976d2;
   font-size: 1.2em;
+}
+
+.stock-info {
+  font-size: 0.75em;
+  color: #888;
+  margin-top: 2px;
+}
+
+.delete-btn {
+  justify-self: center;
 }
 
 .section-header {
@@ -1194,6 +1380,33 @@ onMounted(async () => {
   background-color: rgba(244, 67, 54, 0.1);
 }
 
+.readonly-field {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.readonly-label {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.readonly-value {
+  padding: 8px 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  background-color: #f5f5f5;
+  color: #333;
+  font-size: 14px;
+  min-height: 20px;
+  display: flex;
+  align-items: center;
+  cursor: default;
+  user-select: none;
+}
+
 @media (max-width: 768px) {
   .articulo-item {
     grid-template-columns: 1fr;
@@ -1201,26 +1414,33 @@ onMounted(async () => {
     text-align: center;
   }
 
+  .articulo-select-container,
+  .cantidad-container,
+  .precio-info,
+  .delete-btn {
+    grid-column: 1;
+  }
+
   .precio-info {
     text-align: center;
+    align-items: center;
   }
 
-  .input-row {
-    grid-template-columns: 1fr;
-    gap: 12px;
+  .cantidad-container {
+    align-items: center;
   }
+}
+.readonly-notice {
+  margin-bottom: 1rem;
+  grid-column: 1 / -1;
+}
 
-  .acciones-estado {
-    flex-direction: column;
-  }
+.q-field--disabled .q-field__control {
+  opacity: 0.6;
+}
 
-  .form-actions {
-    flex-direction: column;
-  }
-
-  .cancel-btn,
-  .submit-btn {
-    width: 100%;
-  }
+.q-input--readonly .q-field__control {
+  background-color: #f5f5f5;
+  opacity: 0.8;
 }
 </style>

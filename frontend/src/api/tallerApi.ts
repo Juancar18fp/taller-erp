@@ -7,9 +7,28 @@ const tallerApi = axios.create({
   },
 });
 
-// Interceptor para manejar errores
+tallerApi.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("token");
+
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    } else {
+      console.warn("⚠️ No hay token disponible para:", config.url);
+    }
+
+    return config;
+  },
+  (error) => {
+    console.error("Error en interceptor de request:", error);
+    return Promise.reject(new Error(error));
+  },
+);
+
 tallerApi.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    return response;
+  },
   (error) => {
     console.error("Error en la petición:", {
       url: error.config?.url,
@@ -21,12 +40,22 @@ tallerApi.interceptors.response.use(
       fullUrl: error.config?.baseURL + error.config?.url,
     });
 
-    // Si es un error de red o el servidor no responde
+    if (error.response?.status === 401) {
+      console.warn("🚪 Token inválido o expirado, limpiando datos...");
+      localStorage.removeItem("token");
+      localStorage.removeItem("usuario");
+
+      if (window.location.pathname !== "/login") {
+        window.location.href = "/login";
+      }
+
+      return Promise.reject(new Error("Sesión expirada. Inicia sesión nuevamente."));
+    }
+
     if (!error.response) {
       return Promise.reject(new Error("Error de conexión con el servidor"));
     }
 
-    // Si es un error del servidor
     const errorMessage = error.response.data?.message || error.message;
     return Promise.reject(new Error(errorMessage));
   },

@@ -1,6 +1,6 @@
 package com.jcfp.tallererp.service;
 
-import com.jcfp.tallererp.model.TipoContrato;
+import com.jcfp.tallererp.entity.TipoContrato;
 import com.jcfp.tallererp.repository.TipoContratoRepository;
 import com.jcfp.tallererp.util.BaseServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;

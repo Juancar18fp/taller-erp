@@ -1,6 +1,6 @@
 package com.jcfp.tallererp.controller;
 
-import com.jcfp.tallererp.model.EstadoOrden;
+import com.jcfp.tallererp.entity.EstadoOrden;
 import com.jcfp.tallererp.service.EstadoOrdenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

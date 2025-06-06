@@ -1,6 +1,6 @@
 package com.jcfp.tallererp.controller;
 
-import com.jcfp.tallererp.model.Modelo;
+import com.jcfp.tallererp.entity.Modelo;
 import com.jcfp.tallererp.service.ModeloService;
 import com.jcfp.tallererp.util.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +19,7 @@ public class ModeloController extends BaseController<Modelo,  ModeloService> {
         this.service = service;
     }
 
-    @GetMapping(params = {"marca", "modelo"})
+    @GetMapping("/buscar")
     public ResponseEntity<List<Modelo>> buscarModelos(
             @RequestParam(required = false) Long marca,
             @RequestParam(required = false) String modelo

@@ -1,4 +1,4 @@
-package com.jcfp.tallererp.model;
+package com.jcfp.tallererp.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -7,10 +7,10 @@ import jakarta.persistence.Id;
 import lombok.Getter;
 import lombok.Setter;
 
-@Entity(name= "jornadas_laborales")
+@Entity(name = "estados_ordenes")
 @Getter
 @Setter
-public class JornadaLaboral {
+public class EstadoOrden {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
