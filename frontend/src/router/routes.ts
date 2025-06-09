@@ -22,6 +22,11 @@ const routes: RouteRecordRaw[] = [
     beforeEnter: authGuard,
     children: [
       {
+        path: "",
+        name: "dashboard",
+        component: () => import("pages/WelcomePage.vue"),
+      },
+      {
         path: "ordenes",
         name: "ordenes",
         component: () => import("pages/OrdenesPage.vue"),

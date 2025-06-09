@@ -1,4 +1,3 @@
-<!-- CsvExportImport.vue - Versión arreglada para descargas -->
 <template>
   <div class="csv-container">
     <q-card class="q-mb-lg" flat bordered>
@@ -46,7 +45,6 @@
       </q-card-section>
     </q-card>
 
-    <!-- Sección de Importación -->
     <q-card flat bordered>
       <q-card-section>
         <div class="text-h6 text-primary q-mb-md flex items-center">
@@ -70,7 +68,6 @@
           </div>
         </div>
 
-        <!-- Zona de arrastre de archivos -->
         <div
           class="file-drop-zone"
           :class="{ 'drag-over': isDragOver }"
@@ -207,67 +204,6 @@ const entityOptions: EntityOption[] = [
   { label: "Puestos", value: "puestos" },
 ];
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const entityFields: Record<string, string[]> = {
-  clientes: [
-    "nombre",
-    "titular",
-    "documento",
-    "direccion",
-    "cp",
-    "poblacion",
-    "provincia",
-    "pais",
-    "email",
-    "telefono",
-  ],
-  empleados: [
-    "nombre",
-    "documento",
-    "fechaNacimiento",
-    "direccion",
-    "cp",
-    "poblacion",
-    "provincia",
-    "pais",
-    "email",
-    "telefono",
-    "numeroSeguridadSocial",
-    "estadoCivil",
-    "rol",
-    "activo",
-  ],
-  vehiculos: ["matricula", "marca", "modelo", "matriculacion", "cliente"],
-  articulos: ["descripcion", "precio", "stock", "proveedor"],
-  ordenes: [
-    "codigoOrden",
-    "empleadoAsignado",
-    "vehiculo",
-    "estadoOrden",
-    "fechaOrden",
-    "fechaInicio",
-    "fechaFinalizacion",
-    "fechaPago",
-    "pagada",
-    "observaciones",
-    "total",
-  ],
-  marcas: ["nombre"],
-  modelos: ["nombre", "marca"],
-  contratos: [
-    "puesto",
-    "fechaContratacion",
-    "fechaFinalizacion",
-    "tipoContrato",
-    "jornadaLaboral",
-    "salario",
-    "numeroCuenta",
-    "activo",
-    "empleado",
-  ],
-  puestos: ["id", "nombre"],
-};
-
 const previewColumns = computed<PreviewColumn[]>(() => {
   return previewFields.value.map((field) => ({
     name: field,
@@ -278,7 +214,6 @@ const previewColumns = computed<PreviewColumn[]>(() => {
   }));
 });
 
-// Funciones de manejo de archivos
 const handleDragOver = (e: DragEvent): void => {
   e.preventDefault();
   isDragOver.value = true;
@@ -356,7 +291,6 @@ const processFile = (file: File): void => {
   reader.readAsText(file);
 };
 
-// ✅ FUNCIÓN DE EXPORTACIÓN
 const exportToCSV = (): void => {
   if (!exportEntity.value) return;
 
@@ -401,7 +335,6 @@ const exportToCSV = (): void => {
   }
 };
 
-// ✅ FUNCIÓN PARA DESCARGAR PLANTILLA
 const downloadTemplate = (): void => {
   if (!exportEntity.value) return;
 
@@ -472,7 +405,6 @@ const importCSV = async (): Promise<void> => {
       message: `Se importaron ${csvPreview.value.length} registros exitosamente`,
     });
 
-    // Limpiar formulario
     resetImportForm();
   } catch (error) {
     importProgress.value.show = false;
@@ -488,7 +420,6 @@ const importCSV = async (): Promise<void> => {
   }
 };
 
-// Función para resetear el formulario de importación
 const resetImportForm = (): void => {
   csvPreview.value = [];
   selectedFileName.value = "";

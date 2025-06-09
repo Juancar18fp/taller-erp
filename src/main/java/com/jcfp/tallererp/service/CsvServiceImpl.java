@@ -23,7 +23,6 @@ import java.util.Map;
 @Service
 public class CsvServiceImpl implements CsvService {
 
-    // Inyectar repositorios reales
     @Autowired(required = false)
     private ClienteRepository clienteRepository;
 
@@ -69,11 +68,7 @@ public class CsvServiceImpl implements CsvService {
     @Autowired(required = false)
     private EstadoOrdenRepository estadoOrdenRepository;
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    private static final DateTimeFormatter YEAR_FORMATTER = DateTimeFormatter.ofPattern("yyyy");
 
-    /**
-     * Exportar datos reales de una entidad a CSV
-     */
     public Resource exportToCSV(String entity) throws IOException {
         String csvContent = generateRealCsvData(entity);
         byte[] csvBytes = csvContent.getBytes(StandardCharsets.UTF_8);
@@ -222,7 +217,6 @@ public class CsvServiceImpl implements CsvService {
                 vehiculo.setMatricula(getString(row, "matricula", true));
                 vehiculo.setMatriculacion(getInt(row, "matriculacion"));
 
-                // Marca (crear si no existe)
                 String marcaNombre = getString(row, "marca", true);
                 Marca marca = marcaRepository.findByNombre(marcaNombre)
                         .orElseGet(() -> {
@@ -231,7 +225,6 @@ public class CsvServiceImpl implements CsvService {
                             return marcaRepository.save(nuevaMarca);
                         });
 
-                // Modelo (crear si no existe)
                 String modeloNombre = getString(row, "modelo", true);
                 Modelo modelo = modeloRepository.findByNombreAndMarca(modeloNombre, marca)
                         .orElseGet(() -> {
@@ -244,7 +237,6 @@ public class CsvServiceImpl implements CsvService {
                 vehiculo.setMarca(marca);
                 vehiculo.setModelo(modelo);
 
-                // Cliente (obligatorio, no se crea si no existe)
                 String clienteDoc = getString(row, "cliente", true);
                 Cliente cliente = clienteRepository.findByDocumento(clienteDoc)
                         .orElseThrow(() -> new Exception("Cliente no encontrado: " + clienteDoc));
@@ -291,7 +283,6 @@ public class CsvServiceImpl implements CsvService {
                 contrato.setNumeroCuenta(getString(row, "numeroCuenta", false));
                 contrato.setActivo(getBoolean(row, "activo"));
 
-                // Búsqueda de relaciones
                 String empleadoDoc = getString(row, "empleado", true);
                 Empleado empleado = empleadoRepository.findByDocumento(empleadoDoc)
                         .orElseThrow(() -> new Exception("Empleado no encontrado: " + empleadoDoc));
@@ -328,19 +319,17 @@ public class CsvServiceImpl implements CsvService {
                 ArticuloUsado articuloUsado = new ArticuloUsado();
                 articuloUsado.setCantidad(getInt(row, "cantidad"));
 
-                // Artículo (crear si no existe)
                 String articuloDesc = getString(row, "articulo", true);
                 Articulo articulo = articuloRepository.findByDescripcion(articuloDesc)
                         .orElseGet(() -> {
                             Articulo nuevoArticulo = new Articulo();
                             nuevoArticulo.setDescripcion(articuloDesc);
-                            nuevoArticulo.setPrecio(0.0); // Valor por defecto
-                            nuevoArticulo.setStock(0);    // Valor por defecto
+                            nuevoArticulo.setPrecio(0.0);
+                            nuevoArticulo.setStock(0);
                             return articuloRepository.save(nuevoArticulo);
                         });
                 articuloUsado.setArticulo(articulo);
 
-                // Orden de trabajo (obligatoria, no se crea si no existe)
                 String ordenCodigo = getString(row, "ordenTrabajo", true);
                 OrdenTrabajo orden = ordenTrabajoRepository.findByCodigoOrden(ordenCodigo)
                         .orElseThrow(() -> new Exception("Orden no encontrada: " + ordenCodigo));
@@ -370,7 +359,6 @@ public class CsvServiceImpl implements CsvService {
                 orden.setTotal(getDouble(row, "total"));
                 orden.setObservaciones(getString(row, "observaciones", false));
 
-                // Búsqueda de relaciones
                 String empleadoDoc = getString(row, "empleadoAsignado", false);
                 if (empleadoDoc != null) {
                     Empleado empleado = empleadoRepository.findByDocumento(empleadoDoc)
@@ -439,7 +427,6 @@ public class CsvServiceImpl implements CsvService {
 
     public ImportResultDto importFromFile(String entity, MultipartFile file) {
         try {
-            // TODO: Procesar archivo CSV real
             return new ImportResultDto(true, "Archivo procesado correctamente", 1, 1);
 
         } catch (Exception e) {
@@ -447,7 +434,7 @@ public class CsvServiceImpl implements CsvService {
         }
     }
 
-    private String generateRealCsvData(String entity) throws IOException {
+    private String generateRealCsvData(String entity) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         PrintWriter writer = new PrintWriter(new OutputStreamWriter(baos, StandardCharsets.UTF_8));
 
@@ -535,13 +522,12 @@ public class CsvServiceImpl implements CsvService {
             try {
                 var empleados = empleadoRepository.findAll();
                 for (var empleado : empleados) {
-                    // Obtener contrato activo para rol y puesto
                     String rolActual = "";
                     String puestoActual = "";
 
                     if (empleado.getContratos() != null) {
                         var contratoActivo = empleado.getContratos().stream()
-                                .filter(c -> c.isActivo())
+                                .filter(Contrato::isActivo)
                                 .findFirst();
 
                         if (contratoActivo.isPresent()) {
@@ -750,13 +736,9 @@ public class CsvServiceImpl implements CsvService {
         }
     }
 
-    /**
-     * Escapar valores CSV para evitar problemas con comas y comillas
-     */
     private String escapeCsv(String value) {
         if (value == null) return "";
 
-        // Si contiene coma, comilla o salto de línea, envolver en comillas y escapar comillas internas
         if (value.contains(",") || value.contains("\"") || value.contains("\n")) {
             return "\"" + value.replace("\"", "\"\"") + "\"";
         }
@@ -764,10 +746,7 @@ public class CsvServiceImpl implements CsvService {
         return value;
     }
 
-    /**
-     * Generar plantilla según la entidad
-     */
-    private String generateTemplateData(String entity) throws IOException {
+    private String generateTemplateData(String entity) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         PrintWriter writer = new PrintWriter(new OutputStreamWriter(baos, StandardCharsets.UTF_8));
 

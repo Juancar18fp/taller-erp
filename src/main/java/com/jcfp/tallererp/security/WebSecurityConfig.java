@@ -24,7 +24,7 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity(prePostEnabled = true)
+@EnableMethodSecurity()
 public class WebSecurityConfig {
 
     private final EmpleadoDetailsServiceImpl empleadoDetailsService;
@@ -66,21 +66,16 @@ public class WebSecurityConfig {
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authz -> authz
-                        // Endpoints públicos
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/test/**").permitAll()
                         .requestMatchers("/ordenes/**").hasAnyRole("ADMINISTRADOR", "TECNICO", "RECEPCIONISTA")
                         .requestMatchers("/clientes/**").hasAnyRole("ADMINISTRADOR", "RECEPCIONISTA")
                         .requestMatchers("/vehiculos/**").hasAnyRole("ADMINISTRADOR", "RECEPCIONISTA")
                         .requestMatchers("/articulos/**").hasAnyRole("ADMINISTRADOR", "ALMACEN")
-                        .requestMatchers("/modelos/**").permitAll()
-                        .requestMatchers("/marcas/**").permitAll()
-                        .requestMatchers("/empleados/**").permitAll()
-                        .requestMatchers("/configuracion/**").hasRole("ADMINISTRADOR")
-                        .requestMatchers("/csv/*/import").permitAll()
-                        .requestMatchers("/csv/*/export").permitAll()
-                        .requestMatchers("/csv/*/template").permitAll()
-                        .requestMatchers("/csv/test/token").permitAll()
+                        .requestMatchers("/empleados/**").hasRole("ADMINISTRADOR")
+                        .requestMatchers("/csv/*/import").hasRole("ADMINISTRADOR")
+                        .requestMatchers("/csv/*/export").hasRole("ADMINISTRADOR")
+                        .requestMatchers("/csv/*/template").hasRole("ADMINISTRADOR")
+                        .requestMatchers("/csv/test/token").hasRole("ADMINISTRADOR")
                         .anyRequest().authenticated()
                 );
 

@@ -62,7 +62,6 @@ export const useAuthStore = defineStore("auth", () => {
         permisos: response.permisos,
       };
 
-      // Guardar en localStorage
       localStorage.setItem("token", response.token);
       localStorage.setItem("usuario", JSON.stringify(usuario.value));
 

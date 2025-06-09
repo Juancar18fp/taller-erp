@@ -28,7 +28,6 @@ public interface EmpleadoRepository extends BaseRepository<Empleado, Long> {
     boolean existsByDocumento(String documento);
     Optional<Empleado> findByNombre(String nombre);
     Optional<Empleado> findByDocumento(String documento);
-    @Query(value = "SELECT * FROM empleados WHERE id = :id", nativeQuery = true)
-    Optional<Empleado> findByIdWithPassword(@Param("id") Long id);
+    int countBy();
 
 }

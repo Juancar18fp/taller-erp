@@ -75,7 +75,7 @@ export function useEmpleadosForm() {
 
   const cargarPuestos = async () => {
     try {
-      const { data } = await tallerApi.get<Puesto[]>("/puestos");
+      const { data } = await tallerApi.get<Puesto[]>("/puestos/all");
       puestos.value = data.map((m) => ({
         id: m.id.toString(),
         nombre: m.nombre,

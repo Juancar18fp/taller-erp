@@ -114,6 +114,7 @@ import { useQuasar } from "quasar";
 import CustomInput from "./CustomInput.vue";
 import tallerApi from "../api/tallerApi";
 import type { ClientePayload, ClienteEditData } from "../types/entities/cliente";
+import { required, validDocument, validPhone, validEmail } from "../utils/validations";
 
 const $q = useQuasar();
 const emit = defineEmits(["created", "updated", "cancel"]);
@@ -137,25 +138,6 @@ const form = ref<ClientePayload>({
   email: null,
   telefono: null,
 });
-
-const required = (val: string | null) => !!val || "Campo obligatorio";
-
-const validEmail = (val: string | null) => {
-  if (!val) return true;
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val) || "Email inválido";
-};
-
-const validDocument = (val: string | null) => {
-  if (!val) return true;
-  const dniRegex = /^[XYZ]?\d{7,8}[A-Z]$/i;
-  const cifRegex = /^[A-HJNPQRSUVW]\d{7}[0-9A-J]$/i;
-  return dniRegex.test(val) || cifRegex.test(val) || "Formato inválido";
-};
-
-const validPhone = (val: string | null) => {
-  if (!val) return true;
-  return /^[6-9]\d{8}$/.test(val) || "Teléfono inválido";
-};
 
 const handleSubmit = async () => {
   const valid = await formRef.value?.validate();

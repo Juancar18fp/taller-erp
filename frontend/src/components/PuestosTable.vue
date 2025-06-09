@@ -52,7 +52,6 @@
       </q-table>
     </q-card-section>
 
-    <!-- Dialog para crear/editar -->
     <q-dialog v-model="showCreateDialog" persistent>
       <q-card style="min-width: 500px; max-width: 600px">
         <q-card-section class="dialog-header">
@@ -79,6 +78,27 @@
                 placeholder="Ej: Mecánico Senior, Recepcionista..."
                 class="form-field"
               />
+
+              <q-select
+                v-model="form.rol.id"
+                :options="roles"
+                label="Selecciona un rol *"
+                outlined
+                dense
+                option-value="id"
+                option-label="nombre"
+                emit-value
+                map-options
+                :rules="[(val) => !!val || 'El rol es obligatorio']"
+                placeholder="Elige un rol..."
+                :loading="loadingRoles"
+              >
+                <template v-slot:no-option>
+                  <q-item>
+                    <q-item-section class="text-grey"> No hay roles disponibles </q-item-section>
+                  </q-item>
+                </template>
+              </q-select>
             </div>
           </q-form>
         </q-card-section>
@@ -112,10 +132,9 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { useQuasar } from "quasar";
-import type { QTableColumn } from "quasar";
+import type { QNotifyCreateOptions, QTableColumn } from "quasar";
 import tallerApi from "../api/tallerApi";
 
-// Definición de las columnas directamente aquí
 const puestosColumns: QTableColumn[] = [
   {
     name: "id",
@@ -134,33 +153,79 @@ const puestosColumns: QTableColumn[] = [
     align: "left",
     style: "min-width: 200px",
   },
+  {
+    name: "rol",
+    label: "Rol del Puesto",
+    field: (row) => row.rol?.nombre || "Sin rol",
+    sortable: true,
+    align: "left",
+    style: "min-width: 200px",
+  },
 ];
+
+export interface Rol {
+  id: string;
+  nombre: string;
+}
 
 interface PuestoItem {
   id: number;
   nombre: string;
+  rol: {
+    id: string;
+    nombre?: string;
+  };
 }
 
-interface FormData {
+interface Puesto {
   nombre: string;
+  rol: {
+    id: string;
+    nombre?: string;
+  };
 }
 
 const $q = useQuasar();
 
 const rows = ref<PuestoItem[]>([]);
 const loading = ref<boolean>(false);
+const loadingRoles = ref<boolean>(false);
 const saving = ref<boolean>(false);
 const showCreateDialog = ref<boolean>(false);
 const editingItem = ref<PuestoItem | null>(null);
+const roles = ref<Rol[]>([]);
 
-const form = ref<FormData>({
+const form = ref<Puesto>({
   nombre: "",
+  rol: {
+    id: "",
+  },
 });
+
+const cargarRoles = async () => {
+  loadingRoles.value = true;
+  try {
+    const { data } = await tallerApi.get<Rol[]>("/roles/all");
+    roles.value = data.map((m) => ({
+      id: m.id,
+      nombre: m.nombre,
+    }));
+  } catch (error) {
+    console.error("Error cargando roles:", error);
+    $q.notify({
+      type: "negative",
+      message: "Error cargando roles",
+      position: "top",
+    } as QNotifyCreateOptions);
+  } finally {
+    loadingRoles.value = false;
+  }
+};
 
 const loadData = async (): Promise<void> => {
   loading.value = true;
   try {
-    const response = await tallerApi.get("/puestos");
+    const response = await tallerApi.get("/puestos/all");
     rows.value = response.data || [];
   } catch (error) {
     console.error("Error cargando puestos:", error);
@@ -178,29 +243,18 @@ const editItem = (_event: unknown, row: PuestoItem): void => {
   editingItem.value = row;
   form.value = {
     nombre: row.nombre || "",
+    rol: {
+      id: row.rol?.id || "",
+      nombre: row.rol?.nombre || "",
+    },
   };
   showCreateDialog.value = true;
 };
 
 const deleteItem = (item: PuestoItem): void => {
-  $q.dialog({
-    title: "Confirmar eliminación",
-    message: `¿Estás seguro de eliminar el puesto "${item.nombre}"?`,
-    html: true,
-    cancel: {
-      label: "Cancelar",
-      color: "grey-7",
-      flat: true,
-    },
-    ok: {
-      label: "Eliminar",
-      color: "negative",
-      unelevated: true,
-    },
-    persistent: true,
-  }).onOk(() => {
+  if (confirm(`¿Estás seguro de eliminar el puesto "${item.nombre}"?`)) {
     void handleDelete(item);
-  });
+  }
 };
 
 const handleDelete = async (item: PuestoItem): Promise<void> => {
@@ -241,17 +295,40 @@ const saveItem = async (): Promise<void> => {
     return;
   }
 
+  if (!form.value.rol.id) {
+    $q.notify({
+      type: "warning",
+      message: "Debe seleccionar un rol",
+      icon: "warning",
+    });
+    return;
+  }
+
   saving.value = true;
   try {
+    const payload = {
+      nombre: form.value.nombre,
+      rol: {
+        id: form.value.rol.id,
+      },
+    };
+    const editPayload = {
+      id: editingItem.value ? editingItem.value.id : undefined,
+      nombre: form.value.nombre,
+      rol: {
+        id: form.value.rol.id,
+      },
+    };
+
     if (editingItem.value) {
-      await tallerApi.put(`/puestos/${editingItem.value.id}`, form.value);
+      await tallerApi.put(`/puestos/${editingItem.value.id}`, editPayload);
       $q.notify({
         type: "positive",
         message: `Puesto "${form.value.nombre}" actualizado correctamente`,
         icon: "check_circle",
       });
     } else {
-      await tallerApi.post("/puestos", form.value);
+      await tallerApi.post("/puestos", payload);
       $q.notify({
         type: "positive",
         message: `Puesto "${form.value.nombre}" creado correctamente`,
@@ -278,11 +355,15 @@ const cancelEdit = (): void => {
   editingItem.value = null;
   form.value = {
     nombre: "",
+    rol: {
+      id: "",
+      nombre: "",
+    },
   };
 };
 
-onMounted(() => {
-  void loadData();
+onMounted(async () => {
+  await Promise.all([loadData(), cargarRoles()]);
 });
 </script>
 
@@ -304,23 +385,8 @@ onMounted(() => {
   overflow: hidden;
 }
 
-.puestos-table .q-table__top {
+.puestos-table {
   padding: 0;
-}
-
-.descripcion-cell {
-  max-width: 300px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  color: #666;
-  font-size: 0.9rem;
-}
-
-.action-buttons {
-  display: flex;
-  gap: 4px;
-  justify-content: center;
 }
 
 .no-data-container {
@@ -347,29 +413,12 @@ onMounted(() => {
   width: 100%;
 }
 
-/* Responsive design */
-@media (max-width: 768px) {
-  .table-header .row {
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .table-header .q-btn {
-    align-self: flex-start;
-  }
-
-  .descripcion-cell {
-    max-width: 150px;
-  }
-}
-
-/* Hover effects */
 .puestos-table tbody tr:hover {
   background-color: #f8f9fa;
   cursor: pointer;
 }
 
-.action-buttons .q-btn:hover {
+.action-buttons  {
   transform: scale(1.1);
   transition: transform 0.2s ease;
 }

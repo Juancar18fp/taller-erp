@@ -2,27 +2,18 @@ package com.jcfp.tallererp.controller;
 
 import com.jcfp.tallererp.entity.Rol;
 import com.jcfp.tallererp.service.RolService;
+import com.jcfp.tallererp.util.BaseController;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/roles")
-public class RolController {
-    private final RolService service;
+public class RolController extends BaseController<Rol, RolService> {
 
     @Autowired
     public RolController(RolService service) {
-        this.service = service;
+        super(service);
     }
 
-    @GetMapping
-    public ResponseEntity<List<Rol>> getAllRols() {
-        List<Rol> clientes = service.findAll();
-        return ResponseEntity.ok(clientes);
-    }
 }

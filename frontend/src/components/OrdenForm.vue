@@ -60,7 +60,6 @@
                 </template>
               </q-select>
 
-              <!-- Cliente -->
               <div class="readonly-field">
                 <label class="readonly-label">Cliente</label>
                 <div class="readonly-value">
@@ -70,7 +69,6 @@
             </div>
           </div>
 
-          <!-- Estado y gestión de la orden -->
           <div class="form-section">
             <div class="section-header">
               <q-icon name="timeline" class="section-icon" />
@@ -78,7 +76,6 @@
             </div>
 
             <div class="estado-container">
-              <!-- Display del estado actual -->
               <div class="estado-actual">
                 <q-chip
                   :color="getEstadoColor(estadoActual)"
@@ -90,7 +87,6 @@
                 </q-chip>
               </div>
 
-              <!-- Información de fechas -->
               <div class="fechas-info" v-if="!esNuevaOrden">
                 <div class="fecha-item" v-if="ordenForm.fechaInicio">
                   <q-icon name="play_arrow" color="green" />
@@ -106,7 +102,6 @@
                 </div>
               </div>
 
-              <!-- Empleado asignado (solo si no es nueva orden) -->
               <div v-if="!esNuevaOrden" class="empleado-container">
                 <q-select
                   v-model="empleadoSeleccionado"
@@ -128,9 +123,7 @@
                 />
               </div>
 
-              <!-- Botones de acción según el estado -->
               <div class="acciones-estado" v-if="!esNuevaOrden && estadoActual !== 'CANCELADA'">
-                <!-- Asignar técnico (Solo si está pendiente y no tiene técnico) -->
                 <q-btn
                   v-if="
                     estadoActual === 'PENDIENTE' && empleadoSeleccionado && !tieneEmpleadoAsignado
@@ -142,7 +135,6 @@
                   class="accion-btn"
                 />
 
-                <!-- Iniciar trabajo (Solo si está pendiente y tiene técnico) -->
                 <q-btn
                   v-if="estadoActual === 'PENDIENTE' && tieneEmpleadoAsignado"
                   label="Iniciar Trabajo"
@@ -152,7 +144,6 @@
                   class="accion-btn"
                 />
 
-                <!-- Finalizar trabajo (Solo si está iniciada) -->
                 <q-btn
                   v-if="estadoActual === 'INICIADA'"
                   label="Finalizar Trabajo"
@@ -162,7 +153,6 @@
                   class="accion-btn"
                 />
 
-                <!-- Marcar como pagada (Solo si no está pagada) -->
                 <q-btn
                   v-if="
                     !ordenForm.pagada &&
@@ -176,7 +166,6 @@
                 />
               </div>
 
-              <!-- Botón de cancelar (disponible en cualquier estado excepto completada y cancelada) -->
               <div class="cancelar-container" v-if="!esNuevaOrden && puedeSerCancelada">
                 <q-separator class="q-my-md" />
                 <q-btn
@@ -191,7 +180,6 @@
             </div>
           </div>
 
-          <!-- Observaciones -->
           <div class="form-section observaciones-section">
             <div class="section-header">
               <q-icon name="notes" class="section-icon" />
@@ -218,7 +206,6 @@
             </q-banner>
           </div>
 
-          <!-- Artículos utilizados -->
           <div class="articulos-section">
             <div class="section-header">
               <q-icon name="inventory" class="section-icon" />
@@ -240,7 +227,6 @@
                 :key="index"
                 class="articulo-item"
               >
-                <!-- Artículo (columna 1) - AÑADIR CONTENEDOR -->
                 <div class="articulo-select-container">
                   <q-select
                     v-model="articuloUsado.articulo"
@@ -272,7 +258,6 @@
                   </q-select>
                 </div>
 
-                <!-- Cantidad (columna 2) - AÑADIR CONTENEDOR Y LABEL -->
                 <div class="cantidad-container">
                   <div class="cantidad-label">Cantidad</div>
                   <q-input
@@ -289,7 +274,6 @@
                   />
                 </div>
 
-                <!-- Precios (columna 3) - MANTENER IGUAL -->
                 <div class="precio-info">
                   <span class="precio-unitario">
                     €{{ (articuloUsado.articulo?.precio || 0).toFixed(2) }}
@@ -306,7 +290,6 @@
                   </span>
                 </div>
 
-                <!-- Botón borrar (columna 4) - MANTENER IGUAL -->
                 <q-btn
                   icon="delete"
                   color="negative"
@@ -1080,10 +1063,6 @@ onMounted(async () => {
     "articulos articulos";
 }
 
-.pago-section {
-  grid-area: pago;
-}
-
 .form-section:nth-child(1) {
   grid-area: info;
 }
@@ -1108,18 +1087,6 @@ onMounted(async () => {
   max-height: 500px;
   display: flex;
   flex-direction: column;
-}
-
-@media (max-width: 900px) {
-  .form-grid {
-    grid-template-columns: 1fr;
-    grid-template-areas:
-      "info"
-      "estado"
-      "observaciones"
-      "articulos";
-    gap: 1rem;
-  }
 }
 
 .estado-container {
@@ -1295,75 +1262,8 @@ onMounted(async () => {
   margin-top: 2px;
 }
 
-.delete-btn {
-  justify-self: center;
-}
-
-.section-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 16px;
-  padding-bottom: 0.75rem;
-  border-bottom: 2px solid #e2e8f0;
-}
-
-.section-icon {
-  font-size: 1.25rem;
-  color: #3b82f6;
-}
-
-.section-title {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #1e293b;
-  margin: 0;
-}
-
-.add-btn {
-  margin-left: auto;
-}
-
-.delete-btn {
-  justify-self: center;
-}
-
-.input-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-
-.input-large {
-  width: 100%;
-}
-
 .textarea-full {
   width: 100%;
-}
-
-.inputs-container {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-}
-
-.form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-  padding: 1rem;
-  border-top: 1px solid #e0e0e0;
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(8px);
-}
-
-.cancel-btn {
-  min-width: 120px;
-}
-
-.submit-btn {
-  min-width: 120px;
 }
 
 .cancelar-container {
@@ -1407,39 +1307,16 @@ onMounted(async () => {
   user-select: none;
 }
 
-@media (max-width: 768px) {
-  .articulo-item {
-    grid-template-columns: 1fr;
-    gap: 8px;
-    text-align: center;
-  }
-
-  .articulo-select-container,
-  .cantidad-container,
-  .precio-info,
-  .delete-btn {
-    grid-column: 1;
-  }
-
-  .precio-info {
-    text-align: center;
-    align-items: center;
-  }
-
-  .cantidad-container {
-    align-items: center;
-  }
-}
 .readonly-notice {
   margin-bottom: 1rem;
   grid-column: 1 / -1;
 }
 
-.q-field--disabled .q-field__control {
+.q-field--disabled {
   opacity: 0.6;
 }
 
-.q-input--readonly .q-field__control {
+.q-input--readonly  {
   background-color: #f5f5f5;
   opacity: 0.8;
 }

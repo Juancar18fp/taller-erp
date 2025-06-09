@@ -1,4 +1,3 @@
-<!-- components/EmpresaConfig.vue -->
 <template>
   <q-card flat bordered>
     <q-card-section>
@@ -8,7 +7,6 @@
       </div>
 
       <q-form @submit="guardarConfiguracion" class="empresa-form">
-        <!-- Información Básica -->
         <div class="form-section">
           <div class="section-title">
             <q-icon name="info" class="q-mr-sm" />
@@ -52,7 +50,6 @@
           </div>
         </div>
 
-        <!-- Dirección -->
         <div class="form-section">
           <div class="section-title">
             <q-icon name="location_on" class="q-mr-sm" />
@@ -108,7 +105,6 @@
           </div>
         </div>
 
-        <!-- Información de Contacto -->
         <div class="form-section">
           <div class="section-title">
             <q-icon name="contact_phone" class="q-mr-sm" />
@@ -167,7 +163,6 @@
           </div>
         </div>
 
-        <!-- Botones de acción -->
         <div class="action-buttons">
           <q-btn
             type="submit"
@@ -201,7 +196,6 @@
       </q-form>
     </q-card-section>
 
-    <!-- Dialog de vista previa -->
     <q-dialog v-model="showPreview" maximized>
       <q-card>
         <q-card-section class="row items-center q-pb-none">
@@ -352,15 +346,7 @@ onMounted(() => {
   grid-column: 1 / -1;
 }
 
-.toggle-container {
-  display: flex;
-  align-items: center;
-  min-height: 56px;
-  padding: 0 12px;
-  border: 1px solid #e0e0e0;
-  border-radius: 4px;
-  background: #fafafa;
-}
+
 
 .action-buttons {
   display: flex;
@@ -371,7 +357,6 @@ onMounted(() => {
   border-top: 1px solid #e0e0e0;
 }
 
-/* Vista previa */
 .preview-container {
   max-width: 600px;
   margin: 0 auto;
@@ -410,42 +395,5 @@ onMounted(() => {
 .contact p {
   color: #1976d2;
   font-weight: 500;
-}
-
-/* Responsive design */
-@media (max-width: 768px) {
-  .form-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-
-  .action-buttons {
-    flex-direction: column;
-  }
-
-  .action-buttons .q-btn {
-    width: 100%;
-  }
-
-  .preview-container {
-    padding: 1rem;
-    margin: 0.5rem;
-  }
-
-  .company-info h2 {
-    font-size: 1.4rem;
-  }
-}
-
-@media (min-width: 769px) and (max-width: 1200px) {
-  .form-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (min-width: 1201px) {
-  .form-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
 }
 </style>

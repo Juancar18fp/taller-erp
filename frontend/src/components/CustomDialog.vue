@@ -55,7 +55,6 @@ interface BaseEntity {
   [key: string]: unknown;
 }
 
-// Interfaz específica para modelos
 interface ModeloEditData {
   id: number;
   nombre: string;
@@ -230,7 +229,7 @@ const handleCancel = () => {
   border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-.header-icon .q-icon {
+.header-icon {
   font-size: 2rem;
   color: white;
 }
@@ -255,26 +254,6 @@ const handleCancel = () => {
   font-weight: 400;
 }
 
-.close-btn {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  transition: all 0.3s ease;
-  border-radius: 12px;
-  width: 44px;
-  height: 44px;
-}
-
-.close-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-  transform: scale(1.05);
-}
-
-.close-btn .q-icon {
-  color: white;
-  font-size: 1.25rem;
-}
-
 .dialog-content {
   flex: 1 1 auto;
   overflow: hidden;
@@ -284,74 +263,6 @@ const handleCancel = () => {
 
 .full-height {
   height: 100%;
-}
-
-/* Animaciones para el dialog */
-.enhanced-dialog .q-dialog__inner {
-  padding: 2rem;
-}
-
-/* Responsive design */
-@media (max-width: 768px) {
-  .dialog-card {
-    width: 100vw;
-    height: 100vh;
-    max-width: 100vw;
-    max-height: 100vh;
-    border-radius: 0;
-  }
-
-  .enhanced-dialog .q-dialog__inner {
-    padding: 0;
-  }
-
-  .dialog-header {
-    padding: 1.5rem 1rem;
-  }
-
-  .header-main {
-    gap: 1rem;
-  }
-
-  .header-icon {
-    padding: 0.75rem;
-  }
-
-  .header-icon .q-icon {
-    font-size: 1.5rem;
-  }
-
-  .dialog-title {
-    font-size: 1.5rem;
-  }
-
-  .dialog-subtitle {
-    font-size: 0.9rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .header-content {
-    flex-direction: column;
-    gap: 1rem;
-    align-items: stretch;
-  }
-
-  .header-main {
-    justify-content: center;
-    text-align: center;
-  }
-
-  .close-btn {
-    align-self: flex-end;
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-  }
-}
-
-.dialog-card {
-  animation: dialogEnter 0.4s ease-out;
 }
 
 @keyframes dialogEnter {

@@ -15,7 +15,7 @@ public class JwtUtils {
     @Value("${app.jwtSecret:tallerProSecretKey2025!@#$%^&*()}")
     private String jwtSecret;
 
-    @Value("${app.jwtExpirationMs:86400000}") // 24 horas
+    @Value("${app.jwtExpirationMs:86400000}")
     private int jwtExpirationMs;
 
     private SecretKey getSigningKey() {

@@ -57,22 +57,6 @@ public class EmpleadoServiceImpl extends BaseServiceImpl<Empleado, Long, Emplead
             empleado.setPassword(passwordEncoder.encode(empleado.getPassword()));
         }
 
-        empleado.setId(id);
-        empleado.setContratos(empleadoExistente.getContratos());
-
-        if (empleado.getNombre() == null) empleado.setNombre(empleadoExistente.getNombre());
-        if (empleado.getDocumento() == null) empleado.setDocumento(empleadoExistente.getDocumento());
-        if (empleado.getEmail() == null) empleado.setEmail(empleadoExistente.getEmail());
-        if (empleado.getTelefono() == null) empleado.setTelefono(empleadoExistente.getTelefono());
-        if (empleado.getDireccion() == null) empleado.setDireccion(empleadoExistente.getDireccion());
-        if (empleado.getCp() == null) empleado.setCp(empleadoExistente.getCp());
-        if (empleado.getPoblacion() == null) empleado.setPoblacion(empleadoExistente.getPoblacion());
-        if (empleado.getProvincia() == null) empleado.setProvincia(empleadoExistente.getProvincia());
-        if (empleado.getPais() == null) empleado.setPais(empleadoExistente.getPais());
-        if (empleado.getFechaNacimiento() == null) empleado.setFechaNacimiento(empleadoExistente.getFechaNacimiento());
-        if (empleado.getNumeroSeguridadSocial() == null) empleado.setNumeroSeguridadSocial(empleadoExistente.getNumeroSeguridadSocial());
-        if (empleado.getEstadoCivil() == null) empleado.setEstadoCivil(empleadoExistente.getEstadoCivil());
-
         return repository.save(empleado);
     }
 

@@ -48,15 +48,6 @@
                 </div>
 
                 <q-list dense>
-                  <q-item clickable v-close-popup @click="showSettings">
-                    <q-item-section avatar>
-                      <q-icon name="settings" />
-                    </q-item-section>
-                    <q-item-section>Configuración</q-item-section>
-                  </q-item>
-
-                  <q-separator />
-
                   <q-item clickable v-close-popup @click="logout">
                     <q-item-section avatar>
                       <q-icon name="logout" color="negative" />
@@ -174,14 +165,6 @@ const navigateTo = async (path: string) => {
 
 const goHome = async () => {
   await navigateTo("/");
-};
-
-const showSettings = async () => {
-  if (authStore.hasPermission("configuracion")) {
-    await navigateTo("configuracion");
-  } else {
-    console.warn("No tienes permisos para acceder a la configuración");
-  }
 };
 
 const logout = async () => {

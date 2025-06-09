@@ -48,7 +48,7 @@ public class AuthController {
                     empleadoPrincipal.getUsuario(),
                     empleadoPrincipal.getNombre(),
                     empleadoPrincipal.getEmail(),
-                    rolDto,
+                       rolDto,
                     permisos));
         } catch (Exception e) {
             return ResponseEntity.badRequest()

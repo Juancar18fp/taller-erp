@@ -3,16 +3,18 @@ package com.jcfp.tallererp.util;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-
 import java.util.List;
 import java.util.Optional;
 
 public abstract class BaseServiceImpl<T,ID, R extends BaseRepository<T,ID>> implements CrudService<T,ID> {
 
-    protected final R repository;
+    protected R repository;
 
-    public BaseServiceImpl(R repository) {
+    protected BaseServiceImpl(R repository) {
         this.repository = repository;
+    }
+    public BaseServiceImpl(){
+
     }
 
     @Override

@@ -1,6 +1,7 @@
 import type { Persona } from "./cliente";
 
 export interface EmpleadoPayload extends Persona {
+  password: string;
   fechaNacimiento: string | null;
   estadoCivil: {
     id: string;
@@ -75,14 +76,13 @@ export interface Rol {
   descripcion?: string;
 }
 
-// Tipos auxiliares para respuestas del backend
 export interface EmpleadoResponse extends Empleado {
   contratos: ContratoResponse[];
 }
 
 export interface ContratoResponse
   extends Omit<Contrato, "puesto" | "tipoContrato" | "jornadaLaboral"> {
-  puesto: Puesto; // Puesto completo con rol
-  tipoContrato: TipoContrato; // Tipo de contrato completo
-  jornadaLaboral: JornadaLaboral; // Jornada laboral completa
+  puesto: Puesto;
+  tipoContrato: TipoContrato;
+  jornadaLaboral: JornadaLaboral;
 }

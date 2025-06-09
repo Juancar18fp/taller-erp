@@ -140,7 +140,6 @@ const handleLogin = async () => {
 </script>
 
 <style scoped>
-/* ===== BASE STYLES ===== */
 .login-container {
   min-height: 100vh;
   display: flex;
@@ -220,20 +219,6 @@ const handleLogin = async () => {
   margin-bottom: 2rem;
 }
 
-.logo-icon {
-  width: 80px;
-  height: 80px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 1rem;
-  font-size: 2rem;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
 .brand-title {
   font-size: 2.75rem;
   font-weight: 700;
@@ -284,20 +269,6 @@ const handleLogin = async () => {
 .form-header {
   text-align: center;
   margin-bottom: 2.5rem;
-}
-
-.company-logo {
-  width: 60px;
-  height: 60px;
-  background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
-  border-radius: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 1.5rem;
-  font-size: 1.5rem;
-  color: white;
-  box-shadow: 0 8px 32px rgba(37, 99, 235, 0.3);
 }
 
 .form-title {
@@ -471,130 +442,11 @@ const handleLogin = async () => {
   }
 }
 
-/* ===== RESPONSIVE DESIGN ===== */
-@media (max-width: 768px) {
-  .login-content {
-    grid-template-columns: 1fr;
-    max-width: 480px;
-  }
-
-  .login-brand {
-    padding: 2rem;
-    min-height: auto;
-  }
-
-  .brand-title {
-    font-size: 2rem;
-  }
-
-  .features {
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 1.5rem;
-  }
-
-  .feature {
-    flex-direction: column;
-    text-align: center;
-    gap: 0.5rem;
-    font-size: 0.875rem;
-  }
-
-  .login-form-section {
-    padding: 2rem;
-  }
-
-  .form-title {
-    font-size: 1.75rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .login-container {
-    padding: 0.5rem;
-  }
-
-  .login-content {
-    border-radius: 16px;
-  }
-
-  .login-brand {
-    padding: 1.5rem;
-  }
-
-  .brand-title {
-    font-size: 1.75rem;
-  }
-
-  .login-form-section {
-    padding: 1.5rem;
-  }
-
-  .form-title {
-    font-size: 1.5rem;
-  }
-
-  .features {
-    gap: 1rem;
-  }
-
-  .feature {
-    font-size: 0.8rem;
-  }
-}
-
-/* ===== ACCESSIBILITY ===== */
 @media (prefers-reduced-motion: reduce) {
   * {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
-  }
-}
-
-/* ===== DARK MODE SUPPORT ===== */
-@media (prefers-color-scheme: dark) {
-  .login-content {
-    background: rgba(31, 41, 55, 0.95);
-    color: #f9fafb;
-  }
-
-  .form-title {
-    color: #f9fafb;
-  }
-
-  .form-subtitle {
-    color: #d1d5db;
-  }
-
-  .input-label {
-    color: #e5e7eb;
-  }
-
-  .form-input {
-    background: #374151;
-    border-color: #4b5563;
-    color: #f9fafb;
-  }
-
-  .form-input:focus {
-    background: #1f2937;
-    border-color: #6366f1;
-  }
-
-  .test-credentials {
-    background: #374151;
-    border-color: #4b5563;
-  }
-
-  .credential-item .label {
-    color: #d1d5db;
-  }
-
-  .credential-item code {
-    background: #4b5563;
-    color: #f3f4f6;
   }
 }
 </style>

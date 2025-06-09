@@ -76,10 +76,10 @@ import { useQuasar } from "quasar";
 import CustomInput from "./CustomInput.vue";
 import tallerApi from "../api/tallerApi";
 import type { ArticuloEditData } from "../types/entities/articulo";
+import { required, validarPrecio, validarStock } from "../utils/validations";
 
 const $q = useQuasar();
 const emit = defineEmits(["created", "updated", "cancel"]);
-
 const props = defineProps<{
   editData?: ArticuloEditData;
 }>();
@@ -93,24 +93,6 @@ const form = ref({
   stock: "0",
   proveedor: "",
 });
-
-const required = (val: string | null) => !!val || "Campo obligatorio";
-
-const validarPrecio = (val: string | null) => {
-  if (!val || val === "") return "Campo obligatorio";
-  const precio = parseFloat(val);
-  if (isNaN(precio) || precio < 0) return "Debe ser un número válido mayor o igual a 0";
-  return true;
-};
-
-const validarStock = (val: string | null) => {
-  if (!val || val === "") return "Campo obligatorio";
-  const stock = parseInt(val);
-  if (isNaN(stock) || stock < 0 || !Number.isInteger(parseFloat(val))) {
-    return "Debe ser un número entero mayor o igual a 0";
-  }
-  return true;
-};
 
 const handleSubmit = async () => {
   const valid = await formRef.value?.validate();

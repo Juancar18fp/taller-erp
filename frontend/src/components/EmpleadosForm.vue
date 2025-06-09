@@ -15,19 +15,6 @@
                 placeholder="Ingrese el nombre completo del empleado"
                 obligatorio
               />
-              <div v-if="editData" class="password-button-container">
-                <q-btn
-                  icon="lock_reset"
-                  label="Cambiar Contraseña"
-                  color="orange"
-                  outline
-                  size="md"
-                  @click="mostrarDialogoPassword = true"
-                  class="password-btn"
-                >
-                  <q-tooltip>Cambiar contraseña del empleado</q-tooltip>
-                </q-btn>
-              </div>
 
               <div class="input-row">
                 <CustomInput
@@ -69,6 +56,24 @@
                   map-options
                 />
               </div>
+            </div>
+          </div>
+
+          <div class="form-section security-section">
+            <div class="section-header">
+              <q-icon name="security" class="section-icon" />
+              <h3 class="section-title">Configuración de Cuenta</h3>
+            </div>
+            <div class="inputs-container">
+              <CustomInput
+                v-model="form.password"
+                :label="editData ? 'Cambiar contraseña' : 'Contraseña *'"
+                :placeholder="
+                  editData ? 'Ingrese la nueva contraseña' : 'Ingrese la contraseña del empleado'
+                "
+                :obligatorio="!editData"
+                type="password"
+              />
             </div>
           </div>
 
@@ -209,6 +214,7 @@
                           dense
                           emit-value
                           map-options
+                          clearable
                           class="input-large"
                         />
                         <q-input
@@ -329,12 +335,6 @@
       />
     </div>
   </div>
-  <CambiarPasswordDialog
-    v-model="mostrarDialogoPassword"
-    :empleado-id="editData?.id || ''"
-    :empleado-nombre="form.nombre"
-    @close="mostrarDialogoPassword = false"
-  />
 </template>
 
 <script setup lang="ts">
@@ -344,7 +344,14 @@ import CustomInput from "./CustomInput.vue";
 import tallerApi from "../api/tallerApi";
 import type { Contrato, EmpleadoEditData, EmpleadoPayload } from "src/types/entities/empleado";
 import { useEmpleadosForm } from "src/composables/useEmpleadosForm";
-import CambiarPasswordDialog from "./CambiarPassDialog.vue";
+import {
+  validSSN,
+  validSalary,
+  validIBAN,
+  validEmail,
+  validDocument,
+  validPhone,
+} from "src/utils/validations";
 
 const $q = useQuasar();
 const emit = defineEmits(["created", "updated", "cancel"]);
@@ -355,11 +362,10 @@ const props = defineProps<{
 
 const formRef = ref();
 const loading = ref(false);
-const mostrarDialogoPassword = ref(false);
 
-// ELIMINAR: Ya no necesitamos rol en el form principal
 const form = ref<EmpleadoPayload>({
   nombre: "",
+  password: "",
   fechaNacimiento: "",
   documento: "",
   direccion: "",
@@ -401,40 +407,6 @@ const getPuestoRol = (puestoId: string) => {
   if (!puestoId) return null;
   const puesto = puestos.value.find((p) => p.id == puestoId);
   return puesto?.rol?.nombre || null;
-};
-
-const validEmail = (val: string | null) => {
-  if (!val) return true;
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val) || "Email inválido";
-};
-
-const validDocument = (val: string | null) => {
-  if (!val) return "Documento requerido";
-  const dniRegex = /^[XYZ]?\d{7,8}[A-Z]$/i;
-  const nieRegex = /^[XYZ]\d{7}[A-Z]$/i;
-  return dniRegex.test(val) || nieRegex.test(val) || "Formato de documento inválido";
-};
-
-const validPhone = (val: string | null) => {
-  if (!val) return true;
-  return /^[6-9]\d{8}$/.test(val) || "Teléfono inválido";
-};
-
-const validSSN = (val: string | null) => {
-  if (!val) return true;
-  return /^\d{12}$/.test(val) || "Número de Seguridad Social inválido";
-};
-
-const validSalary = (val: number | null | undefined) => {
-  if (val === null || val === undefined || val === 0) return "Salario requerido";
-  return val > 0 || "El salario debe ser mayor a 0";
-};
-
-const validIBAN = (val: string | null) => {
-  if (!val) return true;
-  const cleanIban = val.replace(/\s/g, "");
-  const ibanRegex = /^ES\d{22}$/;
-  return ibanRegex.test(cleanIban) || "IBAN inválido";
 };
 
 const agregarContrato = () => {
@@ -487,8 +459,9 @@ const handleSubmit = async () => {
     loading.value = true;
 
     const payload = {
-      id: props.editData?.id || undefined,
+      id: props.editData?.id,
       nombre: form.value.nombre,
+      password: form.value.password,
       fechaNacimiento: form.value.fechaNacimiento || null,
       documento: form.value.documento,
       direccion: form.value.direccion,
@@ -596,6 +569,7 @@ const toggleContractVisibility = (index: number) => {
 const resetForm = () => {
   form.value = {
     nombre: "",
+    password: "",
     fechaNacimiento: "",
     documento: "",
     direccion: "",
@@ -622,6 +596,7 @@ watch(
     if (data) {
       form.value = {
         nombre: data.nombre || "",
+        password: "",
         fechaNacimiento: data.fechaNacimiento || "",
         documento: data.documento || "",
         direccion: data.direccion || "",
@@ -633,7 +608,6 @@ watch(
         telefono: data.telefono || "",
         email: data.email || "",
         numeroSeguridadSocial: data.numeroSeguridadSocial || "",
-
         contratos: data.contratos
           ? data.contratos.map((contrato) => ({
               ...contrato,
@@ -696,18 +670,6 @@ onMounted(async () => {
   margin-left: 4px;
 }
 
-.contract-actions-bottom {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid #e0e0e0;
-}
-
-.save-contract-btn {
-  min-width: 140px;
-}
 
 .contract-toggle-container {
   display: flex;
@@ -719,10 +681,6 @@ onMounted(async () => {
 .contract-actions {
   display: flex;
   gap: 8px;
-}
-
-.q-chip {
-  font-weight: 500;
 }
 
 .contract-card {
@@ -751,23 +709,49 @@ onMounted(async () => {
   padding: 40px;
   color: #666;
 }
-.password-button-container {
-  display: flex;
-  align-items: flex-end;
-  padding-bottom: 8px;
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto 1fr;
+  gap: 1.5rem;
+  height: 100%;
+  grid-template-areas:
+    "personal contact"
+    "security contact"
+    "contracts contracts";
+}
+.form-section:nth-child(1) {
+  grid-area: personal;
 }
 
-.password-btn {
-  height: 40px;
+.form-section:nth-child(2) {
+  grid-area: security;
 }
 
-.input-row {
-  display: flex;
-  gap: 16px;
-  align-items: flex-end;
+.form-section:nth-child(3) {
+  grid-area: contact;
 }
 
-.input-large {
-  flex: 1;
+.contracts-section {
+  grid-area: contracts;
+}
+
+.contracts-container::-webkit-scrollbar {
+  width: 4px;
+}
+
+.contracts-container::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 2px;
+}
+
+.contracts-container::-webkit-scrollbar-thumb {
+  background: rgba(59, 130, 246, 0.3);
+  border-radius: 2px;
+}
+
+.contracts-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(59, 130, 246, 0.5);
 }
 </style>

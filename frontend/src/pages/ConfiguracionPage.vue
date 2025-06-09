@@ -1,4 +1,3 @@
-<!-- pages/Configuracion.vue -->
 <template>
   <q-page padding>
     <div class="page-container">
@@ -118,19 +117,6 @@ const configSections = [
 .content-area {
   min-height: 600px;
   width: 100%;
-}
-
-@media (max-width: 768px) {
-  .row.q-gutter-lg {
-    flex-direction: column !important;
-    flex-wrap: wrap !important;
-  }
-
-  .col-12.col-md-3,
-  .col-12.col-md-9 {
-    flex: none !important;
-    width: 100% !important;
-  }
 }
 
 .page-container {

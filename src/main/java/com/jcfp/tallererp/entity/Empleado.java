@@ -3,6 +3,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -11,6 +12,7 @@ import java.util.List;
 @Entity(name = "empleados")
 @Getter
 @Setter
+@NoArgsConstructor
 public class Empleado {
 
     @Id
@@ -40,7 +42,9 @@ public class Empleado {
     @ManyToOne
     @JoinColumn(name = "estado_civil_id")
     private EstadoCivil estadoCivil;
+
     private String numeroSeguridadSocial;
+
     @OneToMany(mappedBy = "empleado", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JsonManagedReference
     private List<Contrato> contratos = new ArrayList<>();
@@ -59,11 +63,4 @@ public class Empleado {
                 .orElse(null);
     }
 
-    @Transient
-    public Contrato getContratoActivo() {
-        return contratos.stream()
-                .filter(Contrato::isActivo)
-                .findFirst()
-                .orElse(null);
-    }
 }

@@ -165,6 +165,7 @@ import CustomInput from "./CustomInput.vue";
 import tallerApi from "src/api/tallerApi";
 import type { Marca, Modelo, VehiculoEditData, VehiculoPayload } from "../types/entities/vehiculo";
 import type { Cliente } from "src/types/entities/cliente";
+import { required } from "../utils/validations";
 
 const $q = useQuasar();
 const emit = defineEmits(["created", "updated", "cancel"]);
@@ -186,7 +187,6 @@ const vehiculoForm = ref<VehiculoPayload>({
     nombre: "",
   },
 });
-const required = (val: string | null) => !!val || "Campo obligatorio";
 
 const clienteSeleccionado = ref<Cliente | null>(null);
 
@@ -263,8 +263,6 @@ const filtrarModelo = async (val: string, update: (fn: () => void) => void) => {
     if (val && val.trim()) {
       params.modelo = val.trim();
     }
-
-    console.log("Parámetros enviados:", params); // Para verificar
 
     const { data } = await tallerApi.get<Modelo[]>("/modelos/buscar", {
       params,
@@ -355,7 +353,6 @@ watch(
         },
       };
 
-      // 1. Cargar cliente
       if (data.cliente?.id) {
         try {
           const { data: clienteData } = await tallerApi.get<Cliente>(
@@ -367,7 +364,6 @@ watch(
         }
       }
 
-      // 2. Cargar marca
       if (data.marca?.id) {
         try {
           const { data: marca } = await tallerApi.get<Marca>(`/marcas/${data.marca.id}`);
@@ -379,16 +375,12 @@ watch(
         marcaSeleccionada.value = null;
       }
 
-      // 3. Cargar modelos DESPUÉS de tener la marca
       if (data.modelo?.id && data.marca?.id) {
         try {
-          // Primero cargar la lista de modelos para esa marca
           const { data: modelosData } = await tallerApi.get<Modelo[]>("/modelos/buscar", {
             params: { marca: data.marca.id },
           });
           modelos.value = Array.isArray(modelosData) ? modelosData : [];
-
-          // Luego cargar el modelo específico
           const { data: modelo } = await tallerApi.get<Modelo>(`/modelos/${data.modelo.id}`);
           modeloSeleccionado.value = modelo;
         } catch (error) {

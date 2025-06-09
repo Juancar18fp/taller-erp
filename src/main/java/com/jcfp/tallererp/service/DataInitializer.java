@@ -52,7 +52,7 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void crearDatosBasicos() {
-        String[] estadosCiviles = {"Soltero", "Casado", "Divorciado", "Viudo"};
+        String[] estadosCiviles = {"Soltero/a", "Casado/a", "Divorciado/a", "Viudo/a"};
         for (String nombre : estadosCiviles) {
             if (!estadoCivilRepository.existsByNombre(nombre)) {
                 EstadoCivil estado = new EstadoCivil();
@@ -96,74 +96,44 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void crearPuestos() {
-        crearPuestoConRol("Administrador del Sistema", "ADMINISTRADOR");
-        crearPuestoConRol("Mecánico Senior", "TECNICO");
-        crearPuestoConRol("Mecánico Junior", "TECNICO");
-        crearPuestoConRol("Recepcionista", "RECEPCIONISTA");
-        crearPuestoConRol("Encargado de Almacén", "ALMACEN");
+        crearPuestoConRol();
     }
 
-    private void crearPuestoConRol(String nombrePuesto, String nombreRol) {
-        if (!puestoRepository.existsByNombre(nombrePuesto)) {
-            Rol rol = rolRepository.findByNombre(nombreRol)
-                    .orElseThrow(() -> new RuntimeException("Rol no encontrado: " + nombreRol));
+    private void crearPuestoConRol() {
+        if (!puestoRepository.existsByNombre("Administrador del Sistema")) {
+            Rol rol = rolRepository.findByNombre("ADMINISTRADOR")
+                    .orElseThrow(() -> new RuntimeException("Rol no encontrado: " + "ADMINISTRADOR"));
 
             Puesto puesto = new Puesto();
-            puesto.setNombre(nombrePuesto);
+            puesto.setNombre("Administrador del Sistema");
             puesto.setRol(rol);
             puestoRepository.save(puesto);
-            System.out.println("Puesto creado: " + nombrePuesto + " con rol " + nombreRol);
+            System.out.println("Puesto creado: " + "Administrador del Sistema" + " con rol " + "ADMINISTRADOR");
         }
     }
 
 
     private void crearEmpleadosEjemplo() {
-        if (!empleadoRepository.existsByDocumento("admin")) {
+        if (!empleadoRepository.existsByDocumento("admin") && empleadoRepository.countBy() == 0) {
             Empleado admin = new Empleado();
             admin.setDocumento("admin");
-            admin.setNombre("Juan Pérez Administrador");
-            admin.setEmail("admin@tallerpro.com");
+            admin.setNombre("Administrador");
             admin.setTelefono("666555444");
-            admin.setFechaNacimiento(LocalDate.of(1985, 5, 15));
-            admin.setDireccion("Calle Principal 123");
             admin.setCp("28001");
-            admin.setPoblacion("Madrid");
-            admin.setProvincia("Madrid");
-            admin.setPais("España");
-            EstadoCivil estadoCivil = estadoCivilRepository.findByNombre("Soltero")
+            EstadoCivil estadoCivil = estadoCivilRepository.findByNombre("Soltero/a")
                     .orElse(null);
             admin.setEstadoCivil(estadoCivil);
             admin.setPassword(passwordEncoder.encode("admin123"));
-
             Empleado empleadoGuardado = empleadoRepository.save(admin);
-            crearContratoParaEmpleado(empleadoGuardado, "Administrador del Sistema", 50000);
+            crearContratoParaEmpleado(empleadoGuardado);
             System.out.println("Usuario administrador creado: DNI=admin, Password=admin123");
         }
 
-        if (!empleadoRepository.existsByDocumento("87654321B")) {
-            Empleado tecnico = new Empleado();
-            tecnico.setDocumento("87654321B");
-            tecnico.setNombre("María García Técnico");
-            tecnico.setEmail("tecnico@tallerpro.com");
-            tecnico.setTelefono("666777888");
-            tecnico.setFechaNacimiento(LocalDate.of(1990, 8, 20));
-            tecnico.setPassword(passwordEncoder.encode("tecnico123"));
-
-            EstadoCivil estadoCivil = estadoCivilRepository.findByNombre("Casado")
-                    .orElse(null);
-            tecnico.setEstadoCivil(estadoCivil);
-
-            Empleado empleadoGuardado = empleadoRepository.save(tecnico);
-
-            crearContratoParaEmpleado(empleadoGuardado, "Mecánico Senior", 35000);
-
-            System.out.println("Usuario técnico creado: DNI=87654321B, Password=tecnico123");
-        }
     }
 
-    private void crearContratoParaEmpleado(Empleado empleado, String nombrePuesto, int salario) {
-        Puesto puesto = puestoRepository.findByNombre(nombrePuesto)
-                .orElseThrow(() -> new RuntimeException("Puesto no encontrado: " + nombrePuesto));
+    private void crearContratoParaEmpleado(Empleado empleado) {
+        Puesto puesto = puestoRepository.findByNombre("Administrador del Sistema")
+                .orElseThrow(() -> new RuntimeException("Puesto no encontrado: " + "Administrador del Sistema"));
 
         TipoContrato tipoContrato = tipoContratoRepository.findByNombre("Indefinido")
                 .orElseThrow(() -> new RuntimeException("Tipo de contrato no encontrado"));
@@ -177,11 +147,11 @@ public class DataInitializer implements CommandLineRunner {
         contrato.setTipoContrato(tipoContrato);
         contrato.setJornadaLaboral(jornada);
         contrato.setFechaContratacion(LocalDate.now());
-        contrato.setSalario(salario);
+        contrato.setSalario(50000);
         contrato.setActivo(true);
         contrato.setNumeroCuenta("ES1234567890123456789012");
 
         contratoRepository.save(contrato);
-        System.out.println("Contrato creado para " + empleado.getNombre() + " en puesto " + nombrePuesto);
+        System.out.println("Contrato creado para " + empleado.getNombre() + " en puesto " + "Administrador del Sistema");
     }
 }
