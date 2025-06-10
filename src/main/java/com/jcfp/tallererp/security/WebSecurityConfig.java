@@ -66,8 +66,14 @@ public class WebSecurityConfig {
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authz -> authz
+                        .requestMatchers("/").permitAll()
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/ordenes/**").hasAnyRole("ADMINISTRADOR", "TECNICO", "RECEPCIONISTA")
+                        .requestMatchers("/actuator/health").permitAll()
+                        .requestMatchers("/favicon.ico").permitAll()
+                        .requestMatchers("/static/**").permitAll()
+                        .requestMatchers("/assets/**").permitAll()
+                        .requestMatchers("/icons/**").permitAll()
+                        .requestMatchers("/css/**", "/js/**", "/img/**").permitAll()                        .requestMatchers("/ordenes/**").hasAnyRole("ADMINISTRADOR", "TECNICO", "RECEPCIONISTA")
                         .requestMatchers("/clientes/**").hasAnyRole("ADMINISTRADOR", "RECEPCIONISTA")
                         .requestMatchers("/vehiculos/**").hasAnyRole("ADMINISTRADOR", "RECEPCIONISTA")
                         .requestMatchers("/articulos/**").hasAnyRole("ADMINISTRADOR", "ALMACEN")
@@ -76,6 +82,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/csv/*/export").hasRole("ADMINISTRADOR")
                         .requestMatchers("/csv/*/template").hasRole("ADMINISTRADOR")
                         .requestMatchers("/csv/test/token").hasRole("ADMINISTRADOR")
+                        .requestMatchers("/index.html").permitAll()
                         .anyRequest().authenticated()
                 );
 

@@ -34,6 +34,33 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             "/export", "/template", "/test/token"
     );
 
+    private static final List<String> PUBLIC_ENDPOINTS = Arrays.asList(
+            "/",
+            "/index.html",
+            "/auth",
+            "/actuator/health",
+            "/favicon.ico",
+            "/static",
+            "/assets",
+            "/icons",
+            "/css",
+            "/js",
+            "/img"
+    );
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String path = request.getRequestURI();
+
+        boolean shouldSkip = PUBLIC_ENDPOINTS.stream().anyMatch(publicPath ->
+                path.equals(publicPath) || path.startsWith(publicPath + "/")
+        );
+
+        logger.info("=== FILTRO CHECK: {} - Saltar: {} ===", path, shouldSkip);
+
+        return shouldSkip;
+    }
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
@@ -84,5 +111,4 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
         logger.debug("No se encontró token JWT válido para: {}", requestPath);
         return null;
-    }
-}
+    }}
