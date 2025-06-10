@@ -4,7 +4,7 @@
 
 <script setup lang="ts">
 import type { QTableColumn } from "quasar";
-import type { Cliente } from "../interfaces/index";
+import type { Cliente } from "../types/entities/cliente";
 import CustomTable from "src/components/CustomTable.vue";
 
 const columns: QTableColumn[] = [

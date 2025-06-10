@@ -1,11 +1,15 @@
 package com.jcfp.tallererp.repository;
 
-import com.jcfp.tallererp.model.Cliente;
+import com.jcfp.tallererp.entity.Cliente;
+import com.jcfp.tallererp.util.BaseRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ClienteRepository extends BaseRepository<Cliente, Long> {
@@ -19,4 +23,7 @@ public interface ClienteRepository extends BaseRepository<Cliente, Long> {
          OR LOWER(c.telefono)   LIKE LOWER(CONCAT('%', :filter, '%'))
     """)
     Page<Cliente> findByFilter(@Param("filter") String filter, Pageable pageable);
+    List<Cliente> findByNombreContainingIgnoreCase(@Param("filter") String filter);
+    Optional<Cliente> findByNombre(String nombre);
+    Optional<Cliente> findByDocumento(String documento);
     }
