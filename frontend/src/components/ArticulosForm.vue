@@ -1,140 +1,139 @@
 <template>
-  <div class="q-pa-md column full-height">
-    <q-scroll-area class="col">
-      <q-form ref="formRef" @submit="handleFormSubmit" class="q-gutter-y-md">
-        <div class="row q-col-gutter-lg">
-          <div class="col-6">
-            <CustomInput
-              v-model="articuloForm.descripcion"
-              label="Descripción *"
-              obligatorio
-              :rules="[(val: string | null) => !!val || 'Campo obligatorio']"
-            />
-            <CustomInput
-              v-model="precioStr"
-              label="Precio *"
-              type="number"
-              obligatorio
-              :rules="[(val: string | null) => !!val || 'Campo obligatorio']"
-            />
-          </div>
-
-          <div class="col-6">
-            <CustomInput v-model="stockStr" label="Stock*" type="number" />
-            <CustomInput
-              v-model="articuloForm.proveedor"
-              label="Proveedor"
-              :rules="[(val: string | null) => !!val || 'Campo obligatorio']"
-            />
+  <div class="dialog-form-container">
+    <q-scroll-area class="form-scroll-area">
+      <q-form ref="formRef" @submit="handleSubmit" class="form-content">
+        <div class="form-grid">
+          <div class="form-section">
+            <div class="section-header">
+              <q-icon name="inventory" class="section-icon" />
+              <h3 class="section-title">Información del Artículo</h3>
+            </div>
+            <div class="inputs-container">
+              <div class="input-row">
+                <CustomInput
+                  v-model="form.descripcion"
+                  label="Descripción *"
+                  placeholder="Ingrese la descripción del artículo"
+                  obligatorio
+                  :rules="[required]"
+                  class="input-large"
+                />
+                <CustomInput
+                  v-model="form.proveedor"
+                  label="Proveedor"
+                  placeholder="Nombre del proveedor (opcional)"
+                  class="input-large"
+                />
+              </div>
+              <div class="input-row">
+                <CustomInput
+                  v-model="form.precio"
+                  label="Precio *"
+                  placeholder="Ingrese el precio"
+                  obligatorio
+                  :rules="[required, validarPrecio]"
+                  class="input-large"
+                />
+                <CustomInput
+                  v-model="form.stock"
+                  label="Stock *"
+                  placeholder="Ingrese el stock"
+                  obligatorio
+                  :rules="[required, validarStock]"
+                  class="input-large"
+                />
+              </div>
+            </div>
           </div>
         </div>
       </q-form>
     </q-scroll-area>
-
-    <q-card-actions align="right" class="sticky-actions q-px-none">
-      <q-btn flat label="Cancelar" color="primary" @click="$emit('cancel')" />
+    <div class="form-actions">
       <q-btn
-        :label="isEditing ? 'Actualizar' : 'Añadir'"
-        color="primary"
-        :loading="isLoading"
-        @click="handleFormSubmit"
-        class="q-ml-sm"
+        flat
+        label="Cancelar"
+        color="grey-7"
+        icon="close"
+        @click="$emit('cancel')"
+        class="cancel-btn"
       />
-    </q-card-actions>
+      <q-btn
+        :label="editData ? 'Actualizar' : 'Crear'"
+        :icon="editData ? 'update' : 'add'"
+        color="primary"
+        unelevated
+        :loading="loading"
+        @click="handleSubmit"
+        class="submit-btn"
+      />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from "vue";
+import { ref, watch } from "vue";
+import { useQuasar } from "quasar";
 import CustomInput from "./CustomInput.vue";
-import { useEntityForm } from "../composables/useEntityForm";
-import type { ArticuloPayload } from "../types/entities";
+import tallerApi from "../api/tallerApi";
+import type { ArticuloEditData } from "../types/entities/articulo";
+import { required, validarPrecio, validarStock } from "../utils/validations";
 
-interface ArticuloEditData extends ArticuloPayload {
-  id: number;
-}
-
+const $q = useQuasar();
 const emit = defineEmits(["created", "updated", "cancel"]);
-
 const props = defineProps<{
-  editData?: ArticuloEditData | undefined;
-  mode?: "create" | "edit";
+  editData?: ArticuloEditData;
 }>();
 
-const articuloForm = ref<ArticuloPayload>({
+const formRef = ref();
+const loading = ref(false);
+
+const form = ref({
   descripcion: "",
-  precio: 0,
-  stock: 0,
+  precio: "0",
+  stock: "0",
   proveedor: "",
 });
 
-const precioStr = ref<string>("");
-const stockStr = ref<string>("");
+const handleSubmit = async () => {
+  const valid = await formRef.value?.validate();
+  if (!valid) return;
 
-const isEditing = computed(() => props.mode === "edit" || !!props.editData?.id);
+  loading.value = true;
 
-const { formRef, isLoading, submitForm } = useEntityForm<ArticuloPayload>({
-  endpoint: "/articulos",
-  successMessage: isEditing.value
-    ? "Artículo actualizado exitosamente"
-    : "Artículo creado exitosamente",
-  errorMessage: isEditing.value ? "Error al actualizar artículo" : "Error al crear artículo",
-  onSuccess: () => {
-    if (!isEditing.value) {
+  try {
+    if (props.editData?.id) {
+      await tallerApi.put(`/articulos/${props.editData.id}`, form.value);
+      $q.notify({ type: "positive", message: "Artículo actualizado" });
+      emit("updated");
+    } else {
+      await tallerApi.post("/articulos", form.value);
+      $q.notify({ type: "positive", message: "Artículo creado" });
+      emit("created");
       resetForm();
     }
-    emit(isEditing.value ? "updated" : "created");
-  },
-});
-
-const resetForm = () => {
-  articuloForm.value = {
-    descripcion: "",
-    precio: 0,
-    stock: 0,
-    proveedor: "",
-  };
-  precioStr.value = "";
-  stockStr.value = "";
-  formRef.value?.resetValidation();
+  } catch (error) {
+    console.error("Error al guardar artículo:", error);
+    $q.notify({ type: "negative", message: "Error al guardar" });
+  } finally {
+    loading.value = false;
+  }
 };
 
-const handleFormSubmit = async (evt: Event) => {
-  evt.preventDefault();
-
-  if (!formRef.value) {
-    console.error("Error: Referencia del formulario no encontrada");
-    return;
-  }
-
-  const success = await formRef.value.validate();
-  if (!success) {
-    console.error("Error: Validación del formulario fallida");
-    return;
-  }
-
-  const formData = {
-    ...articuloForm.value,
-    precio: Number(precioStr.value) || 0,
-    stock: Number(stockStr.value) || 0,
-    ...(isEditing.value && props.editData?.id ? { id: props.editData.id } : {}),
+const resetForm = () => {
+  form.value = {
+    descripcion: "",
+    precio: "0",
+    stock: "0",
+    proveedor: "",
   };
-
-  await submitForm(formData, props.editData?.id);
+  formRef.value?.resetValidation();
 };
 
 watch(
   () => props.editData,
-  (newData) => {
-    if (newData) {
-      articuloForm.value = {
-        descripcion: newData.descripcion || "",
-        precio: newData.precio || 0,
-        stock: newData.stock || 0,
-        proveedor: newData.proveedor || "",
-      };
-      precioStr.value = newData.precio?.toString() || "";
-      stockStr.value = newData.stock?.toString() || "";
+  (data) => {
+    if (data) {
+      form.value = { ...data };
     } else {
       resetForm();
     }
@@ -144,17 +143,10 @@ watch(
 </script>
 
 <style scoped>
-.sticky-actions {
-  position: sticky;
-  bottom: 0;
-  background: white;
-  z-index: 1000;
-  padding: 16px 0;
-  border-top: 1px solid rgba(0, 0, 0, 0.12);
-  margin-top: auto;
-}
-
-.full-height {
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
   height: 100%;
 }
 </style>

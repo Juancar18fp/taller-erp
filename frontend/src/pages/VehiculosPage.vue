@@ -4,7 +4,7 @@
 
 <script setup lang="ts">
 import type { QTableColumn } from "quasar";
-import type { Vehiculo } from "../interfaces/index";
+import type { Vehiculo } from "../types/entities/vehiculo";
 import CustomTable from "src/components/CustomTable.vue";
 import { ref, onMounted } from "vue";
 import tallerApi from "../api/tallerApi";
@@ -24,7 +24,7 @@ const modelos = ref<Record<string, string>>({});
 
 const cargarMarcas = async () => {
   try {
-    const { data } = await tallerApi.get<Marca[]>("/marcas");
+    const { data } = await tallerApi.get<Marca[]>("/marcas/all");
     marcas.value = data.reduce(
       (acc, marca) => {
         acc[marca.id] = marca.nombre;
@@ -39,7 +39,7 @@ const cargarMarcas = async () => {
 
 const cargarModelos = async () => {
   try {
-    const { data } = await tallerApi.get<Modelo[]>("/modelos");
+    const { data } = await tallerApi.get<Modelo[]>("/modelos/all");
     modelos.value = data.reduce(
       (acc, modelo) => {
         acc[modelo.id] = modelo.nombre;
@@ -75,14 +75,14 @@ const columns: QTableColumn[] = [
   {
     name: "marca",
     label: "Marca",
-    field: (row) => marcas.value[row.marca] || row.marca,
+    field: (row) => row.marca?.nombre || "Sin marca",
     sortable: true,
     align: "left",
   },
   {
     name: "modelo",
     label: "Modelo",
-    field: (row) => modelos.value[row.modelo] || row.modelo,
+    field: (row) => row.modelo?.nombre || "Sin modelo",
     sortable: true,
     align: "left",
   },

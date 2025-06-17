@@ -4,7 +4,7 @@
 
 <script setup lang="ts">
 import type { QTableColumn } from "quasar";
-import type { Articulo } from "src/interfaces";
+import type { Articulo } from "../types/entities/articulo";
 import CustomTable from "src/components/CustomTable.vue";
 
 const columns: QTableColumn[] = [

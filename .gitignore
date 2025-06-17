@@ -35,3 +35,10 @@ buildNumber.properties
 ### Archivos del sistema operativo ###
 .DS_Store
 Thumbs.db
+
+
+
+frontend/node_modules/
+frontend/dist/
+frontend/.quasar/
+frontend/.env

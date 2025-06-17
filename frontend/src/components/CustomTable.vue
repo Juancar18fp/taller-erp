@@ -34,6 +34,7 @@
     </q-table>
 
     <CreateCustomDialog
+      v-if="createDialogVisible"
       v-model="createDialogVisible"
       @created="refreshTable"
       @updated="refreshTable"
@@ -44,17 +45,33 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, nextTick } from "vue";
 import { QTable, useQuasar } from "quasar";
-import type { QTableProps } from "quasar";
-import type { ApiResponse, BaseEntity, CustomTableProps } from "src/interfaces";
+import type { QTableProps, QTableColumn } from "quasar";
 import tallerApi from "../api/tallerApi";
-import CreateCustomDialog from "./CreateCustomDialog.vue";
+import CreateCustomDialog from "./CustomDialog.vue";
+
+interface BaseEntity {
+  id: number;
+  [key: string]: unknown;
+}
+
+interface CustomTableProps {
+  columns: QTableColumn[];
+  title: string;
+  route: string;
+}
+
+interface ApiResponse<T = BaseEntity> {
+  items: T[];
+  total: number;
+}
 
 const customProps = defineProps<CustomTableProps>();
 const $q = useQuasar();
 const tableRef = ref<QTable>();
 const rows = ref<BaseEntity[]>([]);
+
 const filter = ref("");
 const loading = ref(false);
 const createDialogVisible = ref(false);
@@ -67,9 +84,11 @@ const buttonLabel = computed(() =>
       ? "Nuevo Vehículo"
       : customProps.route.toLowerCase().includes("articulos")
         ? "Nuevo Artículo"
-        : customProps.route.toLowerCase().includes("ordenes")
-          ? "Nueva Orden de Trabajo"
-          : "Nuevo",
+        : customProps.route.toLowerCase().includes("empleados")
+          ? "Nuevo Empleado"
+          : customProps.route.toLowerCase().includes("ordenes")
+            ? "Nueva Orden de Trabajo"
+            : "Nuevo",
 );
 
 const showCreateDialog = () => {
@@ -79,19 +98,25 @@ const showCreateDialog = () => {
 
 const showEditDialog = async (item: BaseEntity) => {
   try {
+    loading.value = true;
     const { data } = await tallerApi.get(`${customProps.route}/${item.id}`);
     selectedItem.value = data;
     createDialogVisible.value = true;
-  } catch {
+  } catch (error) {
+    console.error("Error loading item:", error);
     $q.notify({
       type: "negative",
       message: "Error al cargar los datos del elemento",
     });
+  } finally {
+    loading.value = false;
   }
 };
 
 const refreshTable = () => {
-  void tableRef.value?.requestServerInteraction();
+  void nextTick(() => {
+    tableRef.value?.requestServerInteraction();
+  });
 };
 
 const pagination = ref<QTableProps["pagination"]>({
@@ -117,13 +142,34 @@ const onRequest = async (props: Parameters<NonNullable<QTableProps["onRequest"]>
     };
 
     const { data } = await tallerApi.get<ApiResponse>(customProps.route, { params });
-    console.log("Datos recibidos del backend:", data.items);
-    rows.value = data.items;
+
+    if (data && Array.isArray(data.items)) {
+      rows.value = data.items;
+      pagination.value = {
+        ...props.pagination,
+        rowsNumber: data.total || 0,
+      };
+    } else {
+      console.error("Invalid API response structure:", {
+        data: data,
+        dataType: typeof data,
+        hasItems: data && "items" in data,
+        itemsValue: data?.items,
+        itemsType: typeof data?.items,
+      });
+      rows.value = [];
+      pagination.value = {
+        ...props.pagination,
+        rowsNumber: 0,
+      };
+    }
+  } catch (error) {
+    console.error("Error loading data:", error);
+    rows.value = [];
     pagination.value = {
-      ...props.pagination,
-      rowsNumber: data.total,
+      ...pagination.value,
+      rowsNumber: 0,
     };
-  } catch {
     $q.notify({
       type: "negative",
       message: "Error cargando los datos",
@@ -134,10 +180,17 @@ const onRequest = async (props: Parameters<NonNullable<QTableProps["onRequest"]>
 };
 
 const onRowClick = (_evt: Event, row: BaseEntity) => {
-  void showEditDialog(row);
+  if (row && row.id) {
+    void showEditDialog(row);
+  }
 };
 
-onMounted(() => {
-  void tableRef.value?.requestServerInteraction();
+onMounted(async () => {
+  await nextTick();
+  if (tableRef.value) {
+    tableRef.value.requestServerInteraction();
+  } else {
+    console.error("Table ref not available");
+  }
 });
 </script>
