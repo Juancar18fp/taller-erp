@@ -461,7 +461,7 @@ const validarStock = (index: number, cantidad: number) => {
   const articulo = ordenForm.value.articulosUsados[index]?.articulo;
   if (!articulo || !cantidad || typeof articulo.stock !== "number") return true;
 
-  if (cantidad > articulo.stock) {
+  if (cantidad > articulo.stock && !articulo.descripcion.includes("Mano")) {
     return `Stock insuficiente. Disponible: ${articulo.stock}`;
   }
   return true;
@@ -471,7 +471,7 @@ const validarCantidadStock = (index: number, cantidad: number) => {
   const articuloUsado = ordenForm.value.articulosUsados[index];
   const articulo = articuloUsado?.articulo;
 
-  if (articulo && typeof articulo.stock === "number" && cantidad > articulo.stock) {
+  if (articulo && typeof articulo.stock === "number" && cantidad > articulo.stock && !articulo.descripcion.includes("Mano")) {
     $q.notify({
       type: "warning",
       message: `Stock insuficiente. Disponible: ${articulo.stock}`,
@@ -752,7 +752,7 @@ const filtrarArticulos = async (val: string, update: (fn: () => void) => void) =
 
     update(() => {
       articulosOptions.value = Array.isArray(data)
-        ? data.filter((articulo) => articulo.stock > 0)
+        ? data.filter((articulo) => articulo.stock > 0 || articulo.descripcion.includes("Mano"))
         : [];
     });
   } catch (error) {
@@ -838,7 +838,7 @@ const handleSubmit = async () => {
       articuloUsado.cantidad &&
       typeof articuloUsado.articulo.stock === "number"
     ) {
-      if (articuloUsado.cantidad > articuloUsado.articulo.stock) {
+      if (articuloUsado.cantidad > articuloUsado.articulo.stock && !articuloUsado.articulo.descripcion.includes("Mano")) {
         $q.notify({
           type: "negative",
           message: `Stock insuficiente para ${articuloUsado.articulo.descripcion}. Disponible: ${articuloUsado.articulo.stock}`,

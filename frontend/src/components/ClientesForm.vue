@@ -26,7 +26,7 @@
 
               <CustomInput
                 v-model="form.documento"
-                label="Documento de identidad *"
+                label="Documento *"
                 placeholder="DNI, NIE o CIF"
                 obligatorio
                 :rules="[required, validDocument]"

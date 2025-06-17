@@ -45,11 +45,12 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             "/icons",
             "/css",
             "/js",
-            "/img"
+            "/img",
+            "/unauthorized"
     );
 
     @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+    protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
 
         boolean shouldSkip = PUBLIC_ENDPOINTS.stream().anyMatch(publicPath ->

@@ -86,7 +86,8 @@ public abstract class BaseController<T, S extends CrudService<T, Long>> {
     @GetMapping(params = "search")
     public ResponseEntity<List<T>> searchByParamFilter(@RequestParam(required = false) String search) {
         if (search != null) {
-            return ResponseEntity.ok(service.findByFilterParam(search));
+            List<T> resultados = service.findByFilterParam(search);
+            return ResponseEntity.ok(resultados);
         }
         return ResponseEntity.ok(service.findAll());
     }

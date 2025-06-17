@@ -12,6 +12,7 @@ import java.util.Optional;
 @Service
 public class ArticuloServiceImpl extends BaseServiceImpl<Articulo, Long, ArticuloRepository> implements ArticuloService {
     private final ArticuloRepository articuloRepository;
+
     @Autowired
     public ArticuloServiceImpl(ArticuloRepository articuloRepository) {
         super(articuloRepository);
@@ -25,13 +26,15 @@ public class ArticuloServiceImpl extends BaseServiceImpl<Articulo, Long, Articul
         }
         return articuloRepository.findByDescripcionContainingIgnoreCase(filter);
     }
+
     public boolean descontarStock(Long articuloId, int cantidad) {
         Optional<Articulo> articuloOpt = articuloRepository.findById(articuloId);
 
         if (articuloOpt.isPresent()) {
             Articulo articulo = articuloOpt.get();
-
-            if (articulo.getStock() >= cantidad) {
+            if (articulo.getDescripcion().equals("Mano de obra por hora")) {
+                return true;
+            } else if (articulo.getStock() >= cantidad) {
                 articulo.setStock(articulo.getStock() - cantidad);
                 articuloRepository.save(articulo);
                 return true;
@@ -54,6 +57,7 @@ public class ArticuloServiceImpl extends BaseServiceImpl<Articulo, Long, Articul
             throw new RuntimeException("Artículo no encontrado con ID: " + articuloId);
         }
     }
+
 
     public boolean verificarStock(Long articuloId, int cantidadRequerida) {
         Optional<Articulo> articuloOpt = articuloRepository.findById(articuloId);

@@ -10,16 +10,6 @@
             <h1 class="brand-title">TallerPro</h1>
           </div>
           <p class="brand-subtitle">Sistema de Gestión de Talleres</p>
-          <div class="features">
-            <div class="feature">
-              <i class="fas fa-car"></i>
-              <span>Gestión de Vehículos</span>
-            </div>
-            <div class="feature">
-              <i class="fas fa-users"></i>
-              <span>Control de Clientes</span>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -233,20 +223,6 @@ const handleLogin = async () => {
   margin: 0.5rem 0 2.5rem;
   font-weight: 400;
   color: #dbeafe;
-}
-
-.features {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.feature {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  font-size: 0.95rem;
-  opacity: 0.9;
 }
 
 .feature i {
